@@ -1,0 +1,49 @@
+.input_container {
+    position: relative;
+    /* margin-bottom: 1.2rem; */
+
+    --max-width: 480px;
+    max-width: var(--max-width);
+}
+
+
+.input {
+    border: 2px solid #D0D0D0;
+    border-radius: 0.5rem;
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--max-width);
+    padding: 0.7rem 3.2rem;
+    padding-right: 2.5rem;
+
+    color: #828282;
+    font-size: 1.13rem;
+    font-weight: 400;
+
+}
+
+
+
+
+.input_logo {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    margin-top: -1rem;
+
+    width: 2rem;
+    height: 2rem;
+}
+
+
+
+.hide_logo {
+    width: 2rem;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    margin-top: -1rem;
+
+    cursor: pointer;
+}

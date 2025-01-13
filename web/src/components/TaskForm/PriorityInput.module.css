@@ -1,0 +1,78 @@
+@import url("@web/styles.css");
+
+.priority_container {
+    font-weight: 500;
+
+    margin: 1.4rem 0 2.2rem;
+    padding: 0;
+    border: none;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.priority_options_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 0.6rem;
+}
+
+.priority_dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 1rem;
+    border: 0;
+
+    align-self: center;
+}
+
+.priority_dot_high {
+    background: var(--priority-high-color);
+}
+
+.priority_dot_moderate {
+    background: var(--priority-moderate-color);
+}
+
+.priority_dot_low {
+    background: var(--priority-low-color);
+}
+
+.priority_input {
+    display: none;
+}
+
+.priority_label {
+    font-size: 0.8rem;
+    font-family: var(--poppins);
+    color: #767575;
+
+    padding: 0.2rem 0.6rem;
+    border: 1px solid #E2E2E2;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-self: center;
+    column-gap: 0.5rem;
+
+    cursor: pointer;
+}
+
+.selected_priority_label {
+    background: #EEECEC;
+}
+
+.priority_legend {
+    font-size: 0.9rem;
+    float: left;
+}
+
+.priority_legend>span {
+    color: #FF0000;
+}

@@ -1,0 +1,47 @@
+.filter_container {
+    font-size: 0.85rem;
+    font-weight: 400;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    column-gap: 0.6em;
+
+    position: relative;
+    padding: 0.7rem;
+
+    cursor: pointer;
+}
+
+
+.options_container {
+    position: absolute;
+    top: 90%;
+    left: 0px;
+    z-index: 5;
+
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+
+    cursor: default;
+
+    background: #fff;
+}
+
+
+.option {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+
+
+@media screen and (min-width: 1024px) {
+    .filter_container {
+        font-size: 1rem;
+    }
+}

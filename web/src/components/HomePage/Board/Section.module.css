@@ -1,0 +1,65 @@
+@import url("@web/styles.css");
+
+.add_task_button {
+    border: 0;
+    cursor: pointer;
+}
+
+.buttons_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 1rem;
+}
+
+.cards_container {
+    overflow-y: scroll;
+
+    padding-left: 1.5rem;
+    padding-right: 1rem;
+}
+
+.cards_container::-webkit-scrollbar {
+    width: 0.5rem;
+    background: transparent;
+}
+
+.cards_container::-webkit-scrollbar-button {
+    display: none;
+}
+
+.cards_container::-webkit-scrollbar-thumb {
+    background: #9CB7C5;
+    border-radius: 10px;
+}
+
+.collapse_all_buttton {
+    border: 0;
+    cursor: pointer;
+}
+
+.section {
+    display: grid;
+    grid-template-rows: 5svh calc(75svh - 1rem - 2rem);
+
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 10px;
+
+    background: #EEF2F5;
+    padding-top: 2rem;
+
+    font-weight: 500;
+}
+
+
+.section_header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 1.5rem;
+
+    margin-bottom: 1rem;
+}

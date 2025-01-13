@@ -1,0 +1,54 @@
+.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list {
+    background: #F9FCFF;
+
+    padding: 1.8rem 1.5rem 2rem 2rem;
+    border-radius: 1rem;
+    width: 25svw;
+    max-width: 475px;
+}
+
+.list_item {
+    font-weight: 400;
+    font-size: 1.1rem;
+
+    margin: 1.2rem 0;
+
+    cursor: default;
+}
+
+.list_item::marker {
+    color: #90C4CC;
+}
+
+
+.list_item>.flex>p:nth-child(2) {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+
+.lists_layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    column-gap: 1rem;
+}
+
+
+
+
+@media screen and (min-width: 1024px) {
+    .list {
+        width: 25svw;
+
+        padding-left: 2.25rem;
+    }
+}

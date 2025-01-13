@@ -1,0 +1,19 @@
+@import url("@web/styles.css");
+
+:root {
+    --error-msg-red: #DB371F;
+}
+
+.error_message {
+    color: var(--error-msg-red);
+
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+
+@media screen and (min-width: 1024px) {
+    .error_message {
+        margin-bottom: 0.75rem;
+    }
+}

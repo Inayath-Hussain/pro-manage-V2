@@ -1,0 +1,89 @@
+@import url("@web/styles.css");
+
+.active_link {
+    stroke: #000 !important;
+    color: #000 !important;
+
+    background: rgba(67, 145, 237, 0.12) !important;
+}
+
+.flex {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: var(--column-gap);
+
+    padding-left: 1rem !important;
+}
+
+.header {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.header_container {
+
+    margin: 1.5rem 0;
+}
+
+.link {
+    padding: 0.8rem 0;
+    margin: 1rem 0;
+    text-decoration: none;
+
+    stroke: #707070;
+    color: #707070;
+}
+
+.link:hover {
+    background: rgba(67, 145, 237, 0.06);
+}
+
+.link_text {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.logo {
+    width: 26px;
+}
+
+.logout_button {
+    color: var(--red-color);
+    font-weight: 500;
+
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+
+    position: absolute;
+    bottom: 5rem;
+    margin-left: 1rem;
+    padding: 0 !important;
+}
+
+.logout_button:disabled {
+    cursor: not-allowed;
+}
+
+.nav_container {
+    font-family: var(--poppins);
+
+    --column-gap: 1.2rem;
+    border-right: 3px solid #EDF5FE;
+
+    position: relative;
+}
+
+
+@media screen and (min-width: 1024px) {
+    .flex {
+        padding-left: 2rem !important;
+    }
+
+    .logout_button {
+        margin-left: 2rem;
+        padding: 0 !important;
+    }
+}

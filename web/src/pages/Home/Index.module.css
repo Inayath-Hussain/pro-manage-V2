@@ -1,0 +1,32 @@
+.home_layout {
+    display: grid;
+
+    grid-template: 100svh/ 200px 1fr;
+}
+
+
+.page_container {
+    font-family: var(--open-sans);
+
+    padding-left: 1.5rem;
+}
+
+
+.page_header {
+    font-weight: 600;
+
+    margin: 1.5rem 0;
+}
+
+
+@media screen and (min-width: 1024px) {
+
+    .home_layout {
+        grid-template: 100svh/ 230px 1fr;
+    }
+
+    .page_container {
+        padding-left: 2rem;
+    }
+
+}

@@ -1,0 +1,66 @@
+.button {
+    width: 75%;
+}
+
+
+.first_button {
+    margin-top: 0.7rem;
+}
+
+
+.form {
+    justify-self: stretch;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    max-width: 640px;
+}
+
+
+.form_header {
+    font-weight: 600;
+    color: #343434;
+
+    margin-bottom: 2rem;
+    margin-top: 1.3rem;
+}
+
+.form_input {
+    margin-bottom: 0.3rem;
+}
+
+.form_input_container {
+    width: 75%;
+}
+
+.link {
+    width: 75%;
+}
+
+
+.second_button {
+    width: 100%;
+}
+
+
+.text {
+    color: #828282;
+    font-size: 1.1rem;
+
+    margin: 1.5rem 0;
+}
+
+
+
+
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+    .text {
+        margin: 1rem 0;
+    }
+
+}

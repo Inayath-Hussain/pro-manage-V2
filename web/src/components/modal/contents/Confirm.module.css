@@ -1,0 +1,62 @@
+@import url("@web/styles.css");
+
+.button {
+    width: 100%;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    border-radius: 12px;
+    margin: 0.5rem 0;
+
+    cursor: pointer;
+
+    font-family: var(--poppins);
+    font-weight: 600;
+
+    outline: none;
+
+    border: 2px solid;
+}
+
+.button:focus {
+    border-color: black !important;
+}
+
+.confirm_button {
+    background: #17A2B8;
+    color: #fff;
+
+    border-color: #17A2B8;
+}
+
+.confirm_button:disabled {
+    background: #EEF2F5;
+    color: black;
+    cursor: wait;
+}
+
+.cancel_button {
+    background: #fff;
+    color: #CF3636;
+
+    border-color: #CF3636;
+}
+
+.confirm_container {
+    background: #fff;
+
+    font-family: var(--poppins);
+
+    width: 350px;
+    border-radius: 10px;
+    padding: 2rem 1.25rem;
+}
+
+
+.confirm_text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--noto-sans);
+    text-align: center;
+
+    margin-bottom: 1.5rem;
+}

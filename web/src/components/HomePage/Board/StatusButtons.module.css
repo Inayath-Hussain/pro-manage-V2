@@ -1,0 +1,22 @@
+.status_button_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 0.3rem;
+}
+
+
+.status_button {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: #767575;
+
+    background: #EEECEC;
+
+    padding: 0.2rem 0.5rem;
+    border: 0;
+    border-radius: 1rem;
+
+    cursor: pointer;
+}

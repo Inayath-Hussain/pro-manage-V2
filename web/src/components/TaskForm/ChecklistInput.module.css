@@ -1,0 +1,105 @@
+@import url("@web/styles.css");
+
+.add_checkList_item_button {
+    margin-top: 2rem;
+    border: 0;
+    background: transparent;
+
+    color: #767575;
+    font-family: var(--inter);
+    font-weight: 500;
+    font-size: 1rem;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    column-gap: 1rem;
+
+    cursor: pointer;
+}
+
+.checkList_done {
+    accent-color: var(--primary-color);
+    scale: 2;
+    margin-left: 0.8rem;
+    margin-right: 1rem;
+
+    cursor: pointer;
+}
+
+.checkList_fieldset {
+    border: none;
+    padding: 0;
+
+    height: 55%;
+
+    /* overflow-y: auto; */
+}
+
+.checkList_input {
+    font-size: 1rem;
+    font-weight: 400;
+    font-family: var(--inter);
+
+    border: 0;
+    outline: 0;
+
+    flex: 1;
+}
+
+.checkList_input_container {
+    border: 1px solid #E2E2E2;
+    border-radius: 12px;
+    margin: 0.7rem 0;
+    padding: 0.7rem 0.5rem;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.checkList_input_container:focus-within {
+    border: 1px solid black;
+}
+
+.checkList_items_container {
+    max-height: 75%;
+    overflow-y: auto;
+
+    width: 100%;
+    padding-right: 30px;
+    margin-top: 0.5rem;
+}
+
+.checkList_items_container::-webkit-scrollbar {
+    width: 10px;
+    border-radius: 10px;
+}
+
+.checkList_items_container::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #9CB7C5;
+}
+
+.checkList_legend {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.checkList_legend>p>span {
+    color: #FF0000;
+}
+
+.delete_checkList_item_button {
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    margin-left: 1rem;
+}
+
+
+.error_message {
+    margin-bottom: 0;
+}

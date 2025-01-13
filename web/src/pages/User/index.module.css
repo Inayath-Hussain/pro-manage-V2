@@ -1,0 +1,86 @@
+:root {
+    /* font family for login and register pages */
+    --open-sans: "Open Sans", sans-serif;
+
+    font-family: var(--open-sans) !important;
+}
+
+.user_container {
+    width: 100svw;
+    height: 100svh;
+
+    display: grid;
+    grid-template-columns: 0.6fr 0.4fr;
+    grid-template-rows: 1fr;
+
+    place-items: center;
+}
+
+.welcome_container {
+    background-color: #17A2B8;
+    justify-self: stretch;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.welcome_image_container {
+    background: url("@web/assets/images/Back.png") no-repeat;
+    background-size: 30svh;
+    background-position: 69% 35%;
+
+    width: 35svh;
+    height: 35svh;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.welcome_image {
+    height: 30svh;
+}
+
+
+.welcome_text {
+    color: #fff;
+    text-align: center;
+
+    margin-top: 1rem;
+}
+
+.welcome_text>h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 1.2rem;
+    margin-bottom: 14px;
+}
+
+.welcome_text>p {
+    font-size: 1.15rem;
+    font-weight: 400;
+}
+
+
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+
+    .user_container {
+        grid-template-columns: 0.55fr 0.45fr;
+    }
+
+    .welcome_image_container {
+        background-size: 25svh;
+
+        width: 30svh;
+        height: 30svh;
+    }
+
+    .welcome_image {
+        height: 25svh;
+    }
+}

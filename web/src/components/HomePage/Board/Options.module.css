@@ -1,0 +1,44 @@
+@import url("@web/styles.css");
+
+.options {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 5;
+
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: var(--poppins);
+    padding: 0.8rem;
+    padding-right: 3rem;
+
+    border-radius: 12px;
+
+    background: #fff;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+.options>option {
+    margin: 0.3rem 0;
+    cursor: pointer;
+}
+
+.options>option:nth-child(3) {
+    color: #CF3636;
+}
+
+.options_button {
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.options_container {
+    position: relative;
+}
