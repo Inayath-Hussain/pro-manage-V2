@@ -1,33 +1,39 @@
 import { UserInfo } from "@/store/slices/userInfoSlice"
 
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios"
+import { AxiosError, HttpStatusCode } from "axios"
 import { apiUrls } from "../URLs"
 import { axiosInstance } from "../instance"
-import { NetworkError, UnauthorizedError } from "../errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors"
+import { errorToast } from "@/utilities/toast/errorToast"
+import { toastIds } from "@/utilities/toast/toastIds"
 
-export const getUserInfoService = async (signal: GenericAbortSignal) => {
-    return new Promise<UserInfo>(async (resolve, reject) => {
-        try {
-            const result = await axiosInstance.get<UserInfo>(apiUrls.userInfo, { signal, withCredentials: true })
+export const getUserInfoService = async () => {
+    return new Promise(async (resolve: (value: UserInfo | UserOfflineError | UnauthorizedError | NetworkError) => void) => {
 
-            return resolve(result.data)
+        if (navigator.onLine === false) {
+            errorToast(toastIds.apiError.userOffline, new UserOfflineError().message);
+            return resolve(new UserOfflineError());
         }
-        catch (ex) {
-            if (ex instanceof AxiosError) {
-                switch (true) {
-                    case (ex.response?.status === HttpStatusCode.Unauthorized):
-                        const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj);
+        else
+            try {
+                const result = await axiosInstance.get<UserInfo>(apiUrls.userInfo, { withCredentials: true })
 
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj);
-                }
+                return resolve(result.data)
             }
+            catch (ex) {
+                if (ex instanceof AxiosError) {
+                    switch (true) {
+                        case (ex.response?.status === HttpStatusCode.Unauthorized):
+                            const unauthorizedErrorObj = new UnauthorizedError();
+                            errorToast(toastIds.apiError.unauthorized, unauthorizedErrorObj.message)
+                            return resolve(unauthorizedErrorObj);
+                    }
+                }
 
-            console.log(ex)
-            reject("Please try again later");
-        }
+                console.log(ex)
+                const networkErrorObj = new NetworkError();
+                errorToast(toastIds.apiError.network, networkErrorObj.message)
+                return resolve(networkErrorObj);
+            }
     })
 }

@@ -12,9 +12,8 @@ import z from "zod";
 import PriorityInput from "@/components/TaskForm/PriorityInput";
 import ChecklistInput from "@/components/TaskForm/ChecklistInput";
 import FormError from "@/components/UserPage/ErrorMsg";
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
-import { NetworkError, UnauthorizedError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { addTaskService } from "@/services/api/task/addTask";
 import { updateTaskService } from "@/services/api/task/updateTask";
 import { addTaskAction, removeTaskAction, updateTaskAction } from "@/store/slices/taskSlice";
@@ -60,8 +59,6 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
     const dueDateRef = useRef<HTMLInputElement | null>(null);
 
     const [loading, setLoading] = useState(false);
-
-    const { signalRef } = useAbortController();
 
     type IFormErrors = {
         [key in keyof Required<IForm>]: string
@@ -160,23 +157,95 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
 
             toastIdRef.current = toast.loading("Saving task")
             if (task === undefined) {
-                const taskDoc = await addTaskService({ title, priority, checkList: checklistWithoutId, dueDate: dueDate || undefined }, signalRef.current.signal)
-                if (taskDoc) {
-                    toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
-                    // dispatch action to add task
-                    dispatch(addTaskAction(taskDoc))
+                const taskDoc = await addTaskService({ title, priority, checkList: checklistWithoutId, dueDate: dueDate || undefined })
+                // if (taskDoc) {
+                //     toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                //     // dispatch action to add task
+                //     dispatch(addTaskAction(taskDoc))
+                // }
+
+                switch (true) {
+                    case (taskDoc instanceof UserOfflineError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        break;
+
+                    case (taskDoc instanceof UnauthorizedError):
+                        navigate(routes.user.login)
+                        closeModal();
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        break
+
+                    case (taskDoc instanceof AddTaskMiddlewareError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return setFormErrors({
+                            title: taskDoc.errors.title || "",
+                            priority: taskDoc.errors.priority || "",
+                            dueDate: taskDoc.errors.dueDate || "",
+                            checkList: taskDoc.errors.checkList || ""
+                        })
+
+                    case (taskDoc instanceof NetworkError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return
+
+                    default:
+                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                        // dispatch action to add task
+                        dispatch(addTaskAction(taskDoc))
+                        break;
                 }
             }
 
             else {
                 // updateTaskService
-                const taskDoc = await updateTaskService({ title, priority, checkList: checklistWithoutId, taskId: task._id, dueDate: dueDate || undefined }, signalRef.current.signal)
+                const taskDoc = await updateTaskService({ title, priority, checkList: checklistWithoutId, taskId: task._id, dueDate: dueDate || undefined })
 
-                if (taskDoc) {
-                    toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
-                    // dispatch action to update task
-                    dispatch(updateTaskAction({ currentStatus: task.status, task: taskDoc }))
+                switch (true) {
+                    case (taskDoc instanceof UpdateTaskMiddlewareError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return setFormErrors({
+                            title: taskDoc.errors.title || "",
+                            priority: taskDoc.errors.priority || "",
+                            dueDate: taskDoc.errors.dueDate || "",
+                            checkList: taskDoc.errors.checkList || ""
+                        })
+
+
+                    case (taskDoc instanceof UnauthorizedError):
+                        navigate(routes.user.login)
+                        closeModal();
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return
+
+                    case (taskDoc instanceof InvalidTaskId):
+                        dispatch(removeTaskAction({ status: task?.status as ITaskJSON["status"], _id: task?._id as string }))
+                        closeModal()
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return
+
+
+                    case (taskDoc instanceof NetworkError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return
+
+                    case (taskDoc instanceof UserOfflineError):
+                        errorToast(toastIdRef.current, taskDoc.message)
+                        return
+
+                    default:
+                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                        // dispatch action to update task
+                        dispatch(updateTaskAction({ currentStatus: task.status, task: taskDoc }))
+
+
+
                 }
+
+                //     if (taskDoc) {
+                //     toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                //     // dispatch action to update task
+                //     dispatch(updateTaskAction({ currentStatus: task.status, task: taskDoc }))
+                // }
             }
 
             setFormErrors({ title: "", dueDate: "", checkList: "", priority: "" })
@@ -197,35 +266,35 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                     })
 
 
-                case (ex instanceof UnauthorizedError):
-                    navigate(routes.user.login)
-                    closeModal();
-                    errorToast(toastIdRef.current, ex.message)
-                    return
+                // case (ex instanceof UnauthorizedError):
+                //     navigate(routes.user.login)
+                //     closeModal();
+                //     errorToast(toastIdRef.current, ex.message)
+                //     return
 
 
-                case (ex instanceof AddTaskMiddlewareError || ex instanceof UpdateTaskMiddlewareError):
-                    errorToast(toastIdRef.current, ex.message)
-                    return setFormErrors({
-                        title: ex.errors.title || "",
-                        priority: ex.errors.priority || "",
-                        dueDate: ex.errors.dueDate || "",
-                        checkList: ex.errors.checkList || ""
-                    })
+                // case (ex instanceof AddTaskMiddlewareError || ex instanceof UpdateTaskMiddlewareError):
+                //     errorToast(toastIdRef.current, ex.message)
+                //     return setFormErrors({
+                //         title: ex.errors.title || "",
+                //         priority: ex.errors.priority || "",
+                //         dueDate: ex.errors.dueDate || "",
+                //         checkList: ex.errors.checkList || ""
+                //     })
 
 
-                // when editing a task if the task doesn't exist in server
-                case (ex instanceof InvalidTaskId):
-                    dispatch(removeTaskAction({ status: task?.status as ITaskJSON["status"], _id: task?._id as string }))
-                    closeModal()
-                    errorToast(toastIdRef.current, ex.message)
+                // // when editing a task if the task doesn't exist in server
+                // case (ex instanceof InvalidTaskId):
+                //     dispatch(removeTaskAction({ status: task?.status as ITaskJSON["status"], _id: task?._id as string }))
+                //     closeModal()
+                //     errorToast(toastIdRef.current, ex.message)
 
-                    return
+                //     return
 
 
-                case (ex instanceof NetworkError):
-                    errorToast(toastIdRef.current, ex.message)
-                    return
+                // case (ex instanceof NetworkError):
+                //     errorToast(toastIdRef.current, ex.message)
+                //     return
 
 
                 default:

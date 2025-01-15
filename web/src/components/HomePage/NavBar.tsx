@@ -2,15 +2,14 @@ import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Logo from "@web/assets/icons/pro-manage-logo.svg"
-import LogoutIcon from '@web/assets/icons/Logout.svg'
-import { useAbortController } from "@web/hooks/useAbortContoller";
-import useModal from "@web/hooks/useModal";
-import { useOnline } from "@web/hooks/useOnline";
-import { routes } from "@web/routes";
-import { NetworkError } from "@web/services/api/errors";
-import { logoutService } from "@web/services/api/user/logoutService";
-import { clearUserInfoAction } from "@web/store/slices/userInfoSlice";
+import Logo from "@/assets/icons/pro-manage-logo.svg"
+import LogoutIcon from '@/assets/icons/Logout.svg'
+import useModal from "@/hooks/useModal";
+import { useOnline } from "@/hooks/useOnline";
+import { routes } from "@/routes";
+import { NetworkError } from "@/services/api/errors";
+import { logoutService } from "@/services/api/user/logoutService";
+import { clearUserInfoAction } from "@/store/slices/userInfoSlice";
 import ConfirmModalComponent from "../modal/contents/Confirm";
 
 import AnalyticsIcon from "../Icons/Analytics";
@@ -27,7 +26,6 @@ const NavBar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { signalRef } = useAbortController();
     const { isOnline } = useOnline();
     const { showModal, hideModal, ModalPortal } = useModal();
 
@@ -41,7 +39,7 @@ const NavBar = () => {
 
     const handleLogout = async () => {
         try {
-            await logoutService(signalRef.current.signal)
+            await logoutService()
 
             dispatch(clearUserInfoAction());
             navigate(routes.user.login);

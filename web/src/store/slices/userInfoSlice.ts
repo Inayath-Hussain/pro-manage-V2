@@ -1,8 +1,9 @@
-import { GenericAbortSignal } from "axios"
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
 import { getUserInfoService } from "@/services/api/user/getUserInfoService"
 import { RootState } from "../index"
-import { NetworkError, UnauthorizedError } from "@/services/api/errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors"
+import { toast } from "react-toastify"
+import { toastIds } from "@/utilities/toast/toastIds"
 
 
 interface IuserInfo {
@@ -30,25 +31,30 @@ const initialState: Ivalues = { ...new UserInfo({ email: "", name: "" }), status
 /**
  * used to make api call to retrieve user info and store it in redux
  */
-export const getUserInfo = createAsyncThunk("getUserInfo", async (signal: GenericAbortSignal, thunkAPI) => {
-    try {
-        const data = await getUserInfoService(signal)
+export const getUserInfo = createAsyncThunk("getUserInfo", async (_, thunkAPI) => {
 
-        return thunkAPI.fulfillWithValue(data)
-    }
-    catch (ex) {
-        switch (true) {
-            case (ex instanceof UnauthorizedError):
-                return thunkAPI.rejectWithValue(ex)
+    const data = await getUserInfoService()
 
+    // 1. success
+    // 2. UnauthorizedError
+    // 3. NetworkError
+    // 4. UserOfflineError
 
-            case (ex instanceof NetworkError):
-                return thunkAPI.rejectWithValue(ex)
+    switch (true) {
+        case (data instanceof UnauthorizedError):
+            toast(data.message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.unauthorized })
+            return thunkAPI.rejectWithValue(data)
 
+        case (data instanceof UserOfflineError):
+            toast(data.message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.userOffline })
+            return thunkAPI.rejectWithValue(data)
 
-            default:
-                return thunkAPI.rejectWithValue(500)
-        }
+        case (data instanceof NetworkError):
+            toast(data.message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.network })
+            return thunkAPI.rejectWithValue(data)
+
+        default:
+            return thunkAPI.fulfillWithValue(data)
     }
 
 })

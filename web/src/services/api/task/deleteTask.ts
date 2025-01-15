@@ -1,36 +1,37 @@
 import { InvalidTaskId } from "./getTaskPublic";
 
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios";
+import { AxiosError, HttpStatusCode } from "axios";
 import { axiosInstance } from "../instance";
-import { NetworkError, UnauthorizedError } from "../errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors";
 import { apiUrls } from "../URLs";
 
-
-export const deleteTaskService = async (id: string, signal: GenericAbortSignal) =>
-    new Promise(async (resolve, reject) => {
-        try {
-            const result = await axiosInstance.delete(apiUrls.deleteTask(id), { withCredentials: true, signal })
-
-            resolve(result)
+export const deleteTaskService = async (id: string) =>
+    new Promise(async (resolve) => {
+        if (navigator.onLine === false) {
+            resolve(new UserOfflineError())
+            return
         }
-        catch (ex) {
-            if (ex instanceof AxiosError) {
-                switch (true) {
-                    case (ex.response?.status === HttpStatusCode.Unauthorized):
-                        const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj)
-
-                    case (ex.response?.status === HttpStatusCode.NotFound):
-                        const invalidTaskIdObj = new InvalidTaskId();
-                        return reject(invalidTaskIdObj)
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj)
-                }
+        else {
+            try {
+                const result = await axiosInstance.delete(apiUrls.deleteTask(id), { withCredentials: true })
+                resolve(result)
             }
+            catch (ex) {
+                if (ex instanceof AxiosError) {
+                    switch (true) {
+                        case (ex.response?.status === HttpStatusCode.Unauthorized):
+                            const unauthorizedErrorObj = new UnauthorizedError();
+                            return resolve(unauthorizedErrorObj)
 
-            console.log(ex)
-            return reject(ex)
+                        case (ex.response?.status === HttpStatusCode.NotFound):
+                            const invalidTaskIdObj = new InvalidTaskId();
+                            return resolve(invalidTaskIdObj)
+                    }
+                }
+
+                console.log(ex)
+                const networkErrorObj = new NetworkError();
+                return resolve(networkErrorObj)
+            }
         }
     })

@@ -28,7 +28,7 @@
 }
 
 .welcome_image_container {
-    background: url("@web/assets/images/Back.png") no-repeat;
+    background: url("@/assets/images/Back.png") no-repeat;
     background-size: 30svh;
     background-position: 69% 35%;
 

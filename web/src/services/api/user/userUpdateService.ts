@@ -1,7 +1,9 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios"
+import { AxiosError, HttpStatusCode } from "axios"
 import { axiosInstance } from "../instance"
 import { apiUrls } from "../URLs"
-import { NetworkError, UnauthorizedError } from "../errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors"
+import { errorToast } from "@/utilities/toast/errorToast"
+import { toastIds } from "@/utilities/toast/toastIds"
 
 
 
@@ -40,43 +42,41 @@ export class UserUpdateMiddlewareError implements IUpdateMiddlewareError {
 
 
 
-export const userUpdateService = async (payload: IUpdateBody, signal: GenericAbortSignal) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const result = await axiosInstance.patch(apiUrls.userUpdate, payload, { signal, withCredentials: true })
+export const userUpdateService = async (payload: IUpdateBody) => {
+    return new Promise(async (resolve: (values: UserOfflineError | string | UnauthorizedError | UserUpdateMiddlewareError | NetworkError) => void) => {
 
-            resolve(result)
+        if (navigator.onLine === false) {
+            errorToast(toastIds.apiError.userOffline, new UserOfflineError().message);
+            return resolve(new UserOfflineError());
+        }
+
+
+        try {
+            const result = await axiosInstance.patch(apiUrls.userUpdate, payload, { withCredentials: true })
+
+            resolve(result.data)
         } catch (ex) {
             if (ex instanceof AxiosError) {
-
-                if (ex.code === AxiosError.ERR_NETWORK) {
-                    const networkErrorObj = new NetworkError();
-                    return reject(networkErrorObj)
-                }
-
                 const status = ex.response?.status
 
                 switch (status) {
                     case HttpStatusCode.BadRequest:
-                        return reject(ex.response?.data.message as string)
+                        return resolve(ex.response?.data.message as string)
 
                     case HttpStatusCode.Unauthorized:
                         const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj)
+                        return resolve(unauthorizedErrorObj)
 
                     case HttpStatusCode.UnprocessableEntity:
                         const { errors } = ex.response?.data as IUpdateMiddlewareError
 
-                        return reject(new UserUpdateMiddlewareError(ex.response?.data, errors))
-
-                    default:
-                        console.log(ex)
-                        return reject("Please try again later")
+                        return resolve(new UserUpdateMiddlewareError(ex.response?.data, errors))
                 }
             }
 
             console.log(ex)
-            reject("Please try again later")
+            const networkErrorObj = new NetworkError();
+            return resolve(networkErrorObj)
         }
     })
 

@@ -1,4 +1,4 @@
-@import url("@web/styles.css");
+@import url("@/styles.css");
 
 .checklist_container {
     font-family: var(--inter);

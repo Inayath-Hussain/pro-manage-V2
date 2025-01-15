@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import ArrowIcon from "@web/assets/icons/down-arrow.svg"
-import { useAbortController } from "@/hooks/useAbortContoller";
+import ArrowIcon from "@/assets/icons/down-arrow.svg"
 import { routes } from "@/routes";
 import { getTaskService } from "@/services/api/task/getTask";
-import { NetworkError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { filterSelector, updateFilter } from "@/store/slices/filterSlice";
 import { renewTaskAction } from "@/store/slices/taskSlice";
 
@@ -28,8 +27,6 @@ const Filter: React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const { signalRef, renewController } = useAbortController();
 
 
     useEffect(() => {
@@ -55,20 +52,43 @@ const Filter: React.FC = () => {
     const handleFilterChange = async (value: OptionValues) => {
 
         // abort signalRef
-        signalRef.current.abort();
-        renewController();
+        // signalRef.current.abort();
+        // renewController();
 
         // make call
         try {
-            const result = await getTaskService(value, signalRef.current.signal)
+            const result = await getTaskService(value)
+            // check values of result and do necessary tasks
 
-            dispatch(renewTaskAction(result))
+            // 1. success
+            // 2. Unauthorized Error
+            // 3. Network Error
+            // 4. User offline Error
 
-            // and then change selectedFilter
+            switch (true) {
+                case (result instanceof UserOfflineError):
+                    toast(result.message, { autoClose: 5000, type: "error" })
+                    break;
 
-            dispatch(updateFilter(value))
+                case (result instanceof UnauthorizedError):
+                    toast(result.message, { autoClose: 5000, type: "error" })
+                    break;
+
+                case (result instanceof NetworkError):
+                    toast(result.message, { autoClose: 5000, type: "error" })
+                    break;
+
+                default:
+                    dispatch(renewTaskAction(result))
+
+                    // and then change selectedFilter
+
+                    dispatch(updateFilter(value))
+            }
+
         }
         catch (ex) {
+            console.log("CATCH >>>> ")
             switch (true) {
                 case (ex === false):
                     toast("Please login again", { autoClose: 5000, type: "error" })

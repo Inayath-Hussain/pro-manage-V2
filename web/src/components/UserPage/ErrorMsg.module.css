@@ -1,4 +1,4 @@
-@import url("@web/styles.css");
+@import url("@/styles.css");
 
 :root {
     --error-msg-red: #DB371F;

@@ -1,12 +1,12 @@
-import { AxiosError, GenericAbortSignal } from "axios";
+import { AxiosError } from "axios";
 import { apiUrls } from "../URLs";
 import { axiosInstance } from "../instance";
 import { NetworkError } from "../errors";
 
-export const logoutService = async (signal: GenericAbortSignal) => {
+export const logoutService = async () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const result = await axiosInstance.post(apiUrls.logoutURL, {}, { withCredentials: true, signal })
+            const result = await axiosInstance.post(apiUrls.logoutURL, {}, { withCredentials: true })
             resolve(result);
         }
         catch (ex) {

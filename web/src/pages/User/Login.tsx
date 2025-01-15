@@ -4,7 +4,6 @@ import styles from "./common.module.css";
 import FormButton from "@/components/UserPage/Button";
 import FormError from "@/components/UserPage/ErrorMsg";
 import FormInput, { IFormInputProps } from "@/components/UserPage/Input";
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
 import { loginService } from "@/services/api/user/loginService";
 import { useOnline } from "@/hooks/useOnline";
@@ -15,7 +14,6 @@ import { NetworkError } from "@/services/api/errors";
 const LoginPage = () => {
 
     const navigate = useNavigate();
-    const { signalRef } = useAbortController();
     const { isOnline } = useOnline();
 
     // schema to validate form values
@@ -50,7 +48,7 @@ const LoginPage = () => {
 
             setLoading(true)
 
-            await loginService(formValues, signalRef.current.signal)
+            await loginService(formValues)
 
             setSubmitionError('')
 

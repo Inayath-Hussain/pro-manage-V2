@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { getAllFocusableElements } from "@web/utilities/modal/modal";
+import { getAllFocusableElements } from "@/utilities/modal/modal";
 
 import styles from "./ModalBase.module.css";
 

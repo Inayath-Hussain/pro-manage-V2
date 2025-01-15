@@ -1,4 +1,4 @@
-@import url("@web/styles.css");
+@import url("@/styles.css");
 
 .arrow {
     transform: rotateX(0);
@@ -133,6 +133,8 @@
     text-overflow: ellipsis;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+
+    /* line-clamp: 2; */
     overflow: hidden;
 }
 

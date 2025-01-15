@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 import NavBar from "@/components/HomePage/NavBar";
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
-import { NetworkError, UnauthorizedError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { getTaskService } from "@/services/api/task/getTask";
 import { AppDispatch } from "@/store";
 import { getUserInfo, userInfoSelector } from "@/store/slices/userInfoSlice";
@@ -23,26 +21,21 @@ const HomePage = () => {
     const userInfo = useSelector(userInfoSelector)
     const dispatch = useDispatch<AppDispatch>();
 
-    const { signalRef } = useAbortController();
-
     // for userInfo
     useEffect(() => {
         const call = async () => {
             if (userInfo.status === "idle" || userInfo.status === "error") {
                 // get user info
-                dispatch(getUserInfo(signalRef.current.signal)).unwrap().catch((reason) => {
+                dispatch(getUserInfo()).unwrap().catch((reason) => {
                     switch (true) {
                         case (reason instanceof UnauthorizedError):
-                            toast(reason.message, { type: "error", autoClose: 5000 })
                             return navigate(routes.user.login);
 
                         case (reason instanceof NetworkError):
-                            toast(reason.message, { type: "error", autoClose: 5000 })
                             return
 
-                        default:
-                            toast("Something went wrong. Please try again later", { type: "error", autoClose: 5000 })
-
+                        case (reason instanceof UserOfflineError):
+                            return
                     }
                 })
             }
@@ -55,24 +48,22 @@ const HomePage = () => {
     // get all user's tasks
     useEffect(() => {
         const call = async () => {
-            try {
-                const result = await getTaskService("week", signalRef.current.signal)
+            const result = await getTaskService("week");
 
-                dispatch(renewTaskAction(result))
+            switch (true) {
+                case (result instanceof UserOfflineError):
+                    break;
+
+                case (result instanceof UnauthorizedError):
+                    return navigate(routes.user.login);
+
+                case (result instanceof NetworkError):
+                    break;
+
+                default:
+                    // and then change selectedFilter
+                    dispatch(renewTaskAction(result))
             }
-            catch (ex) {
-                console.log(ex)
-
-                switch (true) {
-                    case (ex instanceof UnauthorizedError):
-                        toast(ex.message, { type: "error", autoClose: 5000 })
-                        return navigate(routes.user.login);
-
-                    case (ex instanceof NetworkError):
-                        return toast(ex.message, { type: "error", autoClose: 5000 })
-                }
-            }
-
 
         }
 

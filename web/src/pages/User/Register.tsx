@@ -4,20 +4,20 @@ import styles from "./common.module.css"
 import FormButton from "@/components/UserPage/Button";
 import FormError from "@/components/UserPage/ErrorMsg";
 import FormInput, { IFormInputProps } from "@/components/UserPage/Input";
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
 import { registerService } from "@/services/api/user/registerService";
 import { useOnline } from "@/hooks/useOnline";
 import useForm from "@/hooks/useForm";
 import { RegisterBodyError } from "@/services/api/user/registerService";
-import { NetworkError } from "@/services/api/errors";
+import { NetworkError, UserOfflineError } from "@/services/api/errors";
+import { toast } from "react-toastify";
+import { toastIds } from "@/utilities/toast/toastIds";
 
 
 
 const RegisterPage = () => {
 
     const navigate = useNavigate();
-    const { signalRef } = useAbortController();
     const { isOnline } = useOnline();
 
     // password validation schema
@@ -64,13 +64,41 @@ const RegisterPage = () => {
             setLoading(true)
 
             // register api
-            await registerService({ email: formValues.email, name: formValues.name, password: formValues.password }, signalRef.current.signal)
+            const result = await registerService({ email: formValues.email, name: formValues.name, password: formValues.password })
 
-            // remove if any form submition errors from previous attempt are present
-            setSubmitionError('')
+            switch (true) {
+                case (result instanceof UserOfflineError):
+                    setLoading(false)
+                    toast(result.message, { toastId: toastIds.apiError.userOffline, type: 'error' });
+                    setSubmitionError(result.message)
+                    break;
 
-            // on successful registration navigate to home page
-            navigate(routes.home)
+                case (result instanceof NetworkError):
+                    setLoading(false)
+                    toast(result.message, { toastId: toastIds.apiError.network, type: 'error' });
+                    setSubmitionError(result.message)
+                    break;
+
+                case (result instanceof RegisterBodyError):
+                    setLoading(false)
+                    setFormErrors(result.errors);
+                    break;
+
+                case (typeof result === 'string'):
+                    setLoading(false)
+                    setSubmitionError(result);
+                    break;
+
+                default:
+                    setLoading(false)
+                    // remove if any form submition errors from previous attempt are present
+                    setSubmitionError('')
+
+                    // on successful registration navigate to home page
+                    navigate(routes.home)
+
+            }
+
         }
         catch (ex) {
             setLoading(false)
@@ -90,13 +118,13 @@ const RegisterPage = () => {
                     })
 
 
-                case (ex instanceof RegisterBodyError):
-                    return setFormErrors(ex.errors)
+                // case (ex instanceof RegisterBodyError):
+                //     return setFormErrors(ex.errors)
 
-                case (ex instanceof NetworkError):
-                    setFormErrors(initialValues)
-                    setSubmitionError(ex.message)
-                    return
+                // case (ex instanceof NetworkError):
+                //     setFormErrors(initialValues)
+                //     setSubmitionError(ex.message)
+                //     return
 
                 default:
                     setFormErrors(initialValues)

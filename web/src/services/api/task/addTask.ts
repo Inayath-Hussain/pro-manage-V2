@@ -1,9 +1,11 @@
-import { IChecklist, ITaskJSON } from "@/store/slices/taskSlice";
+import { toast } from "react-toastify";
+import { AxiosError, HttpStatusCode } from "axios";
 
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios";
 import { axiosInstance } from "../instance";
 import { apiUrls } from "../URLs";
-import { NetworkError, UnauthorizedError } from "../errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors";
+import { IChecklist, ITaskJSON } from "@/store/slices/taskSlice";
+import { toastIds } from "@/utilities/toast/toastIds";
 
 
 export interface IAddTaskBody {
@@ -47,34 +49,36 @@ export class AddTaskMiddlewareError implements IAddTaskBodyError {
 }
 
 
-export const addTaskService = async (payload: IAddTaskBody, signal: GenericAbortSignal) =>
-    new Promise<ITaskJSON>(async (resolve, reject) => {
-        try {
-            const result = await axiosInstance.post(apiUrls.addTask, payload, { withCredentials: true, signal })
-
-            const taskObj = new AddTaskResponse(result.data.message, result.data.task)
-            resolve(taskObj.task)
+export const addTaskService = async (payload: IAddTaskBody) =>
+    new Promise(async (resolve: (value: ITaskJSON | UnauthorizedError | UserOfflineError | NetworkError | AddTaskMiddlewareError) => void) => {
+        if (navigator.onLine === false) {
+            toast(new UserOfflineError().message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.userOffline })
+            resolve(new UserOfflineError());
         }
-        catch (ex) {
-            if (ex instanceof AxiosError) {
-                switch (true) {
-                    case (ex.response?.status === HttpStatusCode.Unauthorized):
-                        const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj);
-
-
-                    case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
-                        const bodyErrorObj = new AddTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
-                        return reject(bodyErrorObj)
-
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj)
-                }
+        else
+            try {
+                const result = await axiosInstance.post(apiUrls.addTask, payload, { withCredentials: true })
+                const taskObj = new AddTaskResponse(result.data.message, result.data.task)
+                resolve(taskObj.task)
             }
+            catch (ex) {
+                if (ex instanceof AxiosError) {
+                    switch (true) {
+                        case (ex.response?.status === HttpStatusCode.Unauthorized):
+                            const unauthorizedErrorObj = new UnauthorizedError();
+                            toast(unauthorizedErrorObj.message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.unauthorized })
+                            return resolve(unauthorizedErrorObj);
 
-            console.log(ex)
-            reject("Please try again later")
-        }
+
+                        case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
+                            const bodyErrorObj = new AddTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
+                            return resolve(bodyErrorObj)
+                    }
+                }
+
+                console.log(ex)
+                const networkErrorObj = new NetworkError();
+                toast(networkErrorObj.message, { type: "error", autoClose: 5000, toastId: toastIds.apiError.network })
+                return resolve(networkErrorObj)
+            }
     })

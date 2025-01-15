@@ -1,7 +1,7 @@
 
-import AddIcon from "@web/assets/icons/add_logo.svg";
-import useModal from "@web/hooks/useModal";
-import TaskFormModal from "@web/components/modal/contents/TaskForm";
+import AddIcon from "@/assets/icons/add_logo.svg";
+import useModal from "@/hooks/useModal";
+import TaskFormModal from "@/components/modal/contents/TaskForm";
 
 
 import styles from "./AddTask.module.css"

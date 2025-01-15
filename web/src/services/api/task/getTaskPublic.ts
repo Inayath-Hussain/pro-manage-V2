@@ -3,7 +3,9 @@ import { AxiosError, HttpStatusCode } from "axios"
 import { ITaskJSON } from "@/store/slices/taskSlice";
 import { apiUrls } from "../URLs"
 import { axiosInstance } from "../instance"
-import { NetworkError } from "../errors"
+import { NetworkError, UserOfflineError } from "../errors"
+import { toast } from "react-toastify";
+import { toastIds } from "@/utilities/toast/toastIds";
 
 
 interface IPublicTaskParam {
@@ -38,31 +40,36 @@ export class InvalidTaskId {
 
 
 export const getTaskPublicService = (taskId: string) =>
-    new Promise<ITaskJSON>(async (resolve, reject) => {
+    new Promise(async (resolve: (values: ITaskJSON | PublicTaskMiddlewareError | InvalidTaskId | UserOfflineError | NetworkError) => void) => {
+
+        if (navigator.onLine === false) {
+            const userOfflineError = new UserOfflineError();
+            toast(userOfflineError.message, { autoClose: 5000, type: 'error', toastId: toastIds.apiError.userOffline })
+            return resolve(userOfflineError);
+        }
+
         try {
             const result = await axiosInstance.get(apiUrls.getPublicTask(taskId))
-            return resolve(result.data.task)
+            return resolve(result.data.task);
         }
         catch (ex) {
             if (ex instanceof AxiosError) {
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
                         const middlewareError = new PublicTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
-                        return reject(middlewareError)
+                        return resolve(middlewareError)
 
 
                     case (ex.response?.status === HttpStatusCode.NotFound):
                         const invalidTaskId = new InvalidTaskId();
-                        return reject(invalidTaskId)
-
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj)
+                        toast(invalidTaskId.message, { autoClose: 5000, type: 'error' })
+                        return resolve(invalidTaskId)
                 }
             }
 
             console.log(ex)
-            return reject("Please try again later")
+            const networkErrorObj = new NetworkError();
+            toast(networkErrorObj.message, { autoClose: 5000, type: 'error', toastId: toastIds.apiError.network })
+            return resolve(networkErrorObj)
         }
     })

@@ -1,7 +1,9 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios";
+import { AxiosError, HttpStatusCode } from "axios";
 import { axiosInstance } from "../instance";
 import { apiUrls } from "../URLs";
-import { NetworkError } from "../errors";
+import { NetworkError, UserOfflineError } from "../errors";
+import { errorToast } from "@/utilities/toast/errorToast";
+import { toastIds } from "@/utilities/toast/toastIds";
 
 
 export interface IRegisterBody {
@@ -37,35 +39,36 @@ export class RegisterBodyError implements IRegisterBodyError {
 /**
  * api call to register new user
  */
-export const registerService = async (payload: IRegisterBody, signal: GenericAbortSignal) => {
+export const registerService = async (payload: IRegisterBody) => {
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve: (values: RegisterBodyError | NetworkError | UserOfflineError | string) => void) => {
+
+        if (navigator.onLine === false) {
+            errorToast(toastIds.apiError.userOffline, new UserOfflineError().message);
+            return resolve(new UserOfflineError());
+        }
 
         try {
-            const result = await axiosInstance.post(apiUrls.registerURL, payload, { signal, withCredentials: true })
-
-            resolve(result)
+            const result = await axiosInstance.post(apiUrls.registerURL, payload, { withCredentials: true })
+            resolve(result.data)
         }
         catch (ex) {
             if (ex instanceof AxiosError) {
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
                         const registerBodyError = new RegisterBodyError(ex.response.data.message, ex.response.data.errors)
-                        return reject(registerBodyError)
+                        return resolve(registerBodyError)
 
                     case (ex.response?.status === HttpStatusCode.Conflict ||
                         ex.response?.status === HttpStatusCode.InternalServerError):
                         const { message } = ex.response?.data
-                        return reject(message as string)
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj.message)
+                        return resolve(message as string)
                 }
             }
 
             console.log(ex)
-            reject("Please try again later")
+            const networkErrorObj = new NetworkError();
+            return resolve(networkErrorObj)
         }
 
     })

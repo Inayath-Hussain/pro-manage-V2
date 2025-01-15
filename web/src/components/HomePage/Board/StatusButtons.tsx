@@ -5,10 +5,10 @@ import { useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { Id, toast } from "react-toastify"
-import { useAbortController } from "@/hooks/useAbortContoller"
+
 import { routes } from "@/routes"
 import { updateTaskStatusService } from "@/services/api/task/updateTaskStatus"
-import { NetworkError, UnauthorizedError } from "@/services/api/errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors"
 import { updateTaskStatusAction } from "@/store/slices/taskSlice"
 import { errorToast } from "@/utilities/toast/errorToast"
 
@@ -22,7 +22,6 @@ interface Iprops {
 const StatusButtons: React.FC<Iprops> = ({ status, taskId }) => {
 
     const toastIdRef = useRef<Id>("");
-    const { signalRef } = useAbortController()
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -35,40 +34,69 @@ const StatusButtons: React.FC<Iprops> = ({ status, taskId }) => {
         if (loading === true) return toast("Updating task please wait...", { type: 'warning', autoClose: 5000 }) //toast here
 
         // make service call to update status
-        try {
+        // try {
 
-            setLoading(true)
-            toastIdRef.current = toast.loading("Updating Task")
-            const result = await updateTaskStatusService({ status: localStatus, taskId }, signalRef.current.signal)
+        setLoading(true)
+        toastIdRef.current = toast.loading("Updating Task")
+        const result = await updateTaskStatusService({ status: localStatus, taskId })
 
-            if (result) {
+        switch (true) {
+            case (result instanceof UserOfflineError):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message);
+                break;
+
+            case (result instanceof NetworkError):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                break;
+
+            case (result instanceof InvalidTaskId):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                break;
+
+            case (result instanceof UnauthorizedError):
+                setLoading(false)
+                navigate(routes.user.login)
+                errorToast(toastIdRef.current, "Please login again")
+                return;
+
+            default:
                 setLoading(false)
                 toast.update(toastIdRef.current, { render: "Task Updated", autoClose: 5000, type: "success", isLoading: false })
                 dispatch(updateTaskStatusAction({ currentStatus: status, data: { _id: taskId, status: localStatus } }))
-                // on success dispatch action to update task
-            }
+
         }
-        catch (ex) {
-            setLoading(false)
-            switch (true) {
-                case (ex instanceof NetworkError):
-                    errorToast(toastIdRef.current, ex.message)
-                    break;
 
-                case (ex instanceof InvalidTaskId):
-                    errorToast(toastIdRef.current, ex.message)
-                    break;
+        // if (result) {
+        //     setLoading(false)
+        //     toast.update(toastIdRef.current, { render: "Task Updated", autoClose: 5000, type: "success", isLoading: false })
+        //     dispatch(updateTaskStatusAction({ currentStatus: status, data: { _id: taskId, status: localStatus } }))
+        //     // on success dispatch action to update task
+        // }
+        // }
+        // catch (ex) {
+        // setLoading(false)
+        //     switch (true) {
+        //         case (ex instanceof NetworkError):
+        //             errorToast(toastIdRef.current, ex.message)
+        //             break;
 
-                case (ex instanceof UnauthorizedError):
-                    navigate(routes.user.login)
-                    errorToast(toastIdRef.current, "Please login again")
-                    return
+        //         case (ex instanceof InvalidTaskId):
+        //             errorToast(toastIdRef.current, ex.message)
+        //             break;
 
-                default:
-                    errorToast(toastIdRef.current, "Something went wrong try again later")
-                    console.log(ex)
-            }
-        }
+        //         case (ex instanceof UnauthorizedError):
+        //             navigate(routes.user.login)
+        //             errorToast(toastIdRef.current, "Please login again")
+        //             return
+
+        //         default:
+        //             errorToast(toastIdRef.current, "Something went wrong try again later")
+        //             console.log(ex)
+        //     }
+        // }
     }
 
 

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import WelcomeImage from '@web/assets/images/Group.png'
+import WelcomeImage from '@/assets/images/Group.png'
 import styles from "./index.module.css";
 
 const UserPage = () => {

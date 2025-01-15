@@ -10,9 +10,8 @@ import FormError from "@/components/UserPage/ErrorMsg";
 import FormInput, { IFormInputProps } from "@/components/UserPage/Input";
 import { useOnline } from "@/hooks/useOnline";
 import useForm from "@/hooks/useForm";
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
-import { NetworkError, UnauthorizedError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { userUpdateService } from "@/services/api/user/userUpdateService";
 import { updateNameAction, userInfoSelector } from "@/store/slices/userInfoSlice";
 import { errorToast } from "@/utilities/toast/errorToast";
@@ -29,7 +28,6 @@ const SettingsPage = () => {
     const navigate = useNavigate();
 
     const { isOnline } = useOnline();
-    const { signalRef } = useAbortController();
 
     const passwordSchema = z.string().trim()
 
@@ -142,17 +140,47 @@ const SettingsPage = () => {
             setLoading(true)
 
             // use update service
-            const result = await userUpdateService(formValues, signalRef.current.signal)
+            const result = await userUpdateService(formValues)
 
-            if (result) {
-                setLoading(false)
-                setFormErrors(initialValues)
-                setSubmitionError("")
-                dispatch(updateNameAction({ name: formValues.name }))
+            switch (true) {
+                case (result instanceof UserOfflineError):
+                    setLoading(false);
+                    errorToast(toastIdRef.current, result.message);
+                    setSubmitionError(result.message);
+                    break;
 
-                toast.update("Saved Data", { type: "success", autoClose: 5000 })
+                case (result instanceof UnauthorizedError):
+                    setLoading(false);
+                    errorToast(toastIdRef.current, result.message);
+                    navigate(routes.user.login);
+                    break;
+
+                case (result instanceof UserUpdateMiddlewareError):
+                    setLoading(false)
+                    errorToast(toastIdRef.current, "Please make changes")
+                    setFormErrors(result.errors)
+                    setSubmitionError("")
+                    break;
+
+                case (result instanceof NetworkError):
+                    setLoading(false)
+                    errorToast(toastIdRef.current, result.message);
+                    break;
+
+                case (typeof result === 'string'):
+                    setLoading(false)
+                    setSubmitionError(result);
+                    break;
+
+                default:
+                    setLoading(false)
+                    setFormErrors(initialValues)
+                    setSubmitionError("")
+                    dispatch(updateNameAction({ name: formValues.name }))
+
+                    toast.update("Saved Data", { type: "success", autoClose: 5000 })
+
             }
-
 
         }
         catch (ex) {
@@ -179,22 +207,22 @@ const SettingsPage = () => {
                     break;
 
 
-                case (ex instanceof UserUpdateMiddlewareError):
-                    errorToast(toastIdRef.current, "Please make changes")
-                    setFormErrors(ex.errors)
-                    setSubmitionError("")
-                    break;
+                // case (ex instanceof UserUpdateMiddlewareError):
+                //     errorToast(toastIdRef.current, "Please make changes")
+                //     setFormErrors(ex.errors)
+                //     setSubmitionError("")
+                //     break;
 
 
-                case (ex instanceof UnauthorizedError):
-                    errorToast(toastIdRef.current, ex.message)
-                    navigate(routes.user.login)
-                    break;
+                // case (ex instanceof UnauthorizedError):
+                //     errorToast(toastIdRef.current, ex.message)
+                //     navigate(routes.user.login)
+                //     break;
 
 
-                case (ex instanceof NetworkError):
-                    errorToast(toastIdRef.current, ex.message)
-                    break;
+                // case (ex instanceof NetworkError):
+                //     errorToast(toastIdRef.current, ex.message)
+                //     break;
 
 
                 default:

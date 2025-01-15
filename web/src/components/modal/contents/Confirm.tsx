@@ -1,4 +1,4 @@
-import useModal from "@web/hooks/useModal";
+import useModal from "@/hooks/useModal";
 
 import styles from "./Confirm.module.css"
 

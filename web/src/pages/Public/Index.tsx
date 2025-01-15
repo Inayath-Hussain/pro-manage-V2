@@ -5,12 +5,11 @@ import { ITaskJSON } from "@/store/slices/taskSlice";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import Logo from "@web/assets/icons/pro-manage-logo.svg"
-import { NetworkError } from "@/services/api/errors";
+import Logo from "@/assets/icons/pro-manage-logo.svg"
+import { NetworkError, UserOfflineError } from "@/services/api/errors";
 import { getTaskPublicService } from "@/services/api/task/getTaskPublic";
 
 import styles from "./Index.module.css";
-import { toast } from "react-toastify";
 
 const PublicTaskPage = () => {
     const { id } = useParams();
@@ -23,33 +22,50 @@ const PublicTaskPage = () => {
 
     useEffect(() => {
         const call = async () => {
-            try {
-                const result = await getTaskPublicService(id as string)
-                setTask(result)
+            // try {
+            const result = await getTaskPublicService(id as string)
 
-                setDonotExist("")
-                setNetworkError("")
-                setTryAgainLater("")
+            switch (true) {
+                case (result instanceof PublicTaskMiddlewareError || result instanceof InvalidTaskId):
+                    setDonotExist("Task donot exist");
+                    break;
+
+                case (result instanceof NetworkError):
+                    setNetworkError("Check your network and try again");
+                    break;
+
+                case (result instanceof UserOfflineError):
+                    setNetworkError("You are offline.")
+                    break;
+
+                default:
+                    setTask(result)
+
+                    setDonotExist("")
+                    setNetworkError("")
+                    setTryAgainLater("")
             }
-            catch (ex) {
-                switch (true) {
-                    case (ex instanceof PublicTaskMiddlewareError || ex instanceof InvalidTaskId):
-                        setDonotExist("Task donot exist");
-                        break;
+
+            // }
+            // catch (ex) {
+            //     switch (true) {
+            //         case (ex instanceof PublicTaskMiddlewareError || ex instanceof InvalidTaskId):
+            //             setDonotExist("Task donot exist");
+            //             break;
 
 
-                    case (ex instanceof NetworkError):
-                        toast(ex.message, { type: "error", autoClose: 5000 })
-                        setNetworkError("Check your network and try again");
-                        break;
+            //         case (ex instanceof NetworkError):
+            //             toast(ex.message, { type: "error", autoClose: 5000 })
+            //             setNetworkError("Check your network and try again");
+            //             break;
 
 
-                    default:
-                        toast("Something went wrong try again later", { type: "error", autoClose: 5000 })
-                        setTryAgainLater("Something went wrong try again later")
-                        break
-                }
-            }
+            //         default:
+            //             toast("Something went wrong try again later", { type: "error", autoClose: 5000 })
+            //             setTryAgainLater("Something went wrong try again later")
+            //             break
+            //     }
+            // }
         }
 
         call();

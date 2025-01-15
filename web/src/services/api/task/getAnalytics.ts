@@ -1,7 +1,9 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios"
+import { AxiosError, HttpStatusCode } from "axios"
 import { axiosInstance } from "../instance"
 import { apiUrls } from "../URLs"
-import { NetworkError, UnauthorizedError } from "../errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors"
+import { toast } from "react-toastify"
+import { toastIds } from "@/utilities/toast/toastIds"
 
 
 export interface IAnalytics {
@@ -16,10 +18,17 @@ export interface IAnalytics {
 }
 
 
-export const getAnalyticsService = (signal: GenericAbortSignal) =>
-    new Promise<IAnalytics>(async (resolve, reject) => {
+export const getAnalyticsService = () =>
+    new Promise(async (resolve: (values: IAnalytics | UserOfflineError | UnauthorizedError | NetworkError) => void) => {
+
+        if (navigator.onLine === false) {
+            const userOfflineErrorObj = new UserOfflineError()
+            resolve(userOfflineErrorObj);
+            toast(userOfflineErrorObj.message, { autoClose: 5000, type: "error", toastId: toastIds.apiError.userOffline })
+            return
+        }
         try {
-            const result = await axiosInstance.get(apiUrls.analytics, { withCredentials: true, signal })
+            const result = await axiosInstance.get(apiUrls.analytics, { withCredentials: true })
 
             resolve(result.data.analytics)
         }
@@ -28,16 +37,14 @@ export const getAnalyticsService = (signal: GenericAbortSignal) =>
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.Unauthorized):
                         const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj)
-
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkError = new NetworkError();
-                        return reject(networkError)
+                        toast(unauthorizedErrorObj.message, { autoClose: 5000, type: "error", toastId: toastIds.apiError.unauthorized })
+                        return resolve(unauthorizedErrorObj)
                 }
             }
 
             console.log(ex)
-            return reject("Please try again later")
+            const networkError = new NetworkError();
+            toast(networkError.message, { autoClose: 5000, type: "error", toastId: toastIds.apiError.unauthorized })
+            return resolve(networkError)
         }
     })

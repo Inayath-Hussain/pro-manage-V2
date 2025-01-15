@@ -1,10 +1,10 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios";
+import { AxiosError, HttpStatusCode } from "axios";
 
 import { InvalidTaskId } from "./getTaskPublic";
 
 import { axiosInstance } from "../instance";
 import { apiUrls } from "../URLs";
-import { NetworkError, UnauthorizedError } from "../errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors";
 
 export interface IUpdateDoneBody {
     taskId: string
@@ -23,10 +23,15 @@ export class InvalidCheckListItemId {
     }
 }
 
-export const updateDoneService = (payload: IUpdateDoneBody, signal: GenericAbortSignal) => {
-    return new Promise(async (resolve, reject) => {
+export const updateDoneService = (payload: IUpdateDoneBody) => {
+    return new Promise(async (resolve) => {
+        if (navigator.onLine === true) {
+            const userOfflineError = new UserOfflineError();
+            return resolve(userOfflineError);
+        }
+
         try {
-            const result = await axiosInstance.patch(apiUrls.updateDone, payload, { signal, withCredentials: true })
+            const result = await axiosInstance.patch(apiUrls.updateDone, payload, { withCredentials: true })
             return resolve(result)
         }
         catch (ex) {
@@ -36,29 +41,29 @@ export const updateDoneService = (payload: IUpdateDoneBody, signal: GenericAbort
                     // if invalid auth tokens or auth tokens are missing
                     case (ex.response?.status === HttpStatusCode.Unauthorized):
                         const unauthorizedErrorObj = new UnauthorizedError()
-                        return reject(unauthorizedErrorObj)
+                        return resolve(unauthorizedErrorObj)
 
 
                     // if check list item doesn't exist
                     case (ex.response?.status === HttpStatusCode.BadRequest && ex.response.data.invalidCheckListId):
                         const invalidCheckListIdObj = new InvalidCheckListItemId()
-                        return reject(invalidCheckListIdObj)
+                        return resolve(invalidCheckListIdObj)
 
 
                     // if task doesn't exist
                     case (ex.response?.status === HttpStatusCode.BadRequest && ex.response.data.invalidTaskId):
                         const invalidTaskIdObj = new InvalidTaskId()
-                        return reject(invalidTaskIdObj)
+                        return resolve(invalidTaskIdObj)
 
 
                     case (ex.code === AxiosError.ERR_NETWORK):
                         const networkErrorObj = new NetworkError()
-                        return reject(networkErrorObj)
+                        return resolve(networkErrorObj)
                 }
             }
             // default
             console.log(ex)
-            return reject(ex)
+            return resolve(ex)
         }
     })
 }

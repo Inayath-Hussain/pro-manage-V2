@@ -9,7 +9,6 @@ import moment from "moment";
 import { toast, Id } from "react-toastify";
 
 import CheckListArror from "@/assets/icons/checkList-arrow.svg"
-import { useAbortController } from "@/hooks/useAbortContoller";
 import { routes } from "@/routes";
 import { NetworkError, UnauthorizedError } from "@/services/api/errors";
 import { updateDoneService } from "@/services/api/task/updateDone";
@@ -39,8 +38,6 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { signalRef } = useAbortController();
-
     // when collapse all is triggered close the card
     useEffect(() => {
         setOpen(false)
@@ -60,47 +57,79 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
         const item = task.checklist.find(item => item._id === checkListId)
         if (item === undefined) return // dispatch to remove item
 
-        try {
-            setLoading(true)
-            toastIdRef.current = toast.loading("Updating Task...")
-            const result = await updateDoneService({ taskId: task._id, checkListId, done: !item.done }, signalRef.current.signal)
+        // try {
+        setLoading(true)
+        toastIdRef.current = toast.loading("Updating Task...")
+        const result = await updateDoneService({ taskId: task._id, checkListId, done: !item.done })
 
-            if (result) {
+        switch (true) {
+            case (result instanceof UnauthorizedError):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                return navigate(routes.user.login)
+
+            case (result instanceof InvalidTaskId):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+                return
+
+            case (result instanceof InvalidCheckListItemId):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                // dispatch to remove item from checkList
+                dispatch(removeCheckListItemAction({ status: task.status, taskId: task._id, itemID: checkListId }))
+                return
+
+            case (result instanceof NetworkError):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                // Check network and try again later, toast here
+                return
+
+
+            default:
                 toast.update(toastIdRef.current, { type: "success", render: "Updated Task Item", isLoading: false, autoClose: 5000 })
                 setLoading(false)
                 // dispatch action to update checkList item
                 dispatch(updateDoneAction({ status: task.status, data: { taskId: task._id, checkListId, done: !item.done } }))
-
-            }
         }
-        catch (ex) {
-            setLoading(false)
-            switch (true) {
-                case (ex instanceof UnauthorizedError):
-                    errorToast(toastIdRef.current, "Please login again")
-                    return navigate(routes.user.login)
 
-                case (ex instanceof InvalidTaskId):
-                    errorToast(toastIdRef.current, ex.message)
-                    dispatch(removeTaskAction({ status: task.status, _id: task._id }))
-                    return
+        // if (result) {
+        //     toast.update(toastIdRef.current, { type: "success", render: "Updated Task Item", isLoading: false, autoClose: 5000 })
+        //     setLoading(false)
+        //     // dispatch action to update checkList item
+        //     dispatch(updateDoneAction({ status: task.status, data: { taskId: task._id, checkListId, done: !item.done } }))
 
-                case (ex instanceof InvalidCheckListItemId):
-                    errorToast(toastIdRef.current, ex.message)
-                    // dispatch to remove item from checkList
-                    dispatch(removeCheckListItemAction({ status: task.status, taskId: task._id, itemID: checkListId }))
-                    return
+        // }
+        // }
+        // catch (ex) {
+        //     switch (true) {
+        //         case (ex instanceof UnauthorizedError):
+        //             errorToast(toastIdRef.current, "Please login again")
+        //             return navigate(routes.user.login)
 
-                case (ex instanceof NetworkError):
-                    errorToast(toastIdRef.current, ex.message)
-                    // Check network and try again later, toast here
-                    return
+        //         case (ex instanceof InvalidTaskId):
+        //             errorToast(toastIdRef.current, ex.message)
+        //             dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+        //             return
 
-                default:
-                    errorToast(toastIdRef.current, "Something went wrong try again later")
-                    console.log(ex)
-            }
-        }
+        //         case (ex instanceof InvalidCheckListItemId):
+        //             errorToast(toastIdRef.current, ex.message)
+        //             // dispatch to remove item from checkList
+        //             dispatch(removeCheckListItemAction({ status: task.status, taskId: task._id, itemID: checkListId }))
+        //             return
+
+        //         case (ex instanceof NetworkError):
+        //             errorToast(toastIdRef.current, ex.message)
+        //             // Check network and try again later, toast here
+        //             return
+
+        //         default:
+        //             errorToast(toastIdRef.current, "Something went wrong try again later")
+        //             console.log(ex)
+        //     }
+        // }
     }
 
 

@@ -1,7 +1,7 @@
 import { ITaskJSON } from "@/store/slices/taskSlice";
 
 import { useState } from "react";
-import CollapseAll from "@web/assets/icons/collapse-all.svg";
+import CollapseAll from "@/assets/icons/collapse-all.svg";
 import AddTask from "./AddTask";
 import Card from "./Card";
 

@@ -2,11 +2,10 @@ import { IAnalytics } from "@/services/api/task/getAnalytics";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useAbortController } from "@/hooks/useAbortContoller";
-import { useOnline } from "@/hooks/useOnline";
+// import { toast } from "react-toastify";
+// import { useOnline } from "@/hooks/useOnline";
 import { routes } from "@/routes";
-import { NetworkError, UnauthorizedError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { getAnalyticsService } from "@/services/api/task/getAnalytics";
 
 import commonStyle from "./Index.module.css"
@@ -21,40 +20,56 @@ const AnalyticsPage = () => {
 
     const navigate = useNavigate();
 
-    const { signalRef } = useAbortController();
-    const { isOnline } = useOnline();
+    // const { isOnline } = useOnline();
 
     useEffect(() => {
         const call = async () => {
-            if (!isOnline) {
-                toast("Connect to a network and try again")
-                return setError("You are offline")
+            // if (!isOnline) {
+            //     toast("Connect to a network and try again")
+            //     return setError("You are offline")
+            // }
+
+            // try {
+            const result = await getAnalyticsService()
+
+            switch (true) {
+                case (result instanceof UnauthorizedError):
+                    navigate(routes.user.login)
+                    return
+
+                case (result instanceof NetworkError):
+                    setError(result.message)
+                    return
+
+                case (result instanceof UserOfflineError):
+                    setError(result.message)
+                    return
+
+                default:
+                    setAnalytics(result)
+                    setError("")
+                    return
             }
 
-            try {
-                const result = await getAnalyticsService(signalRef.current.signal)
+            // }
+            // catch (ex) {
+            //     switch (true) {
+            //         case (ex instanceof NetworkError):
+            //             toast(ex.message, { autoClose: 5000, type: "error" })
+            //             setError(ex.message)
+            //             break
 
-                setAnalytics(result)
-                setError("")
-            }
-            catch (ex) {
-                switch (true) {
-                    case (ex instanceof NetworkError):
-                        toast(ex.message, { autoClose: 5000, type: "error" })
-                        setError(ex.message)
-                        break
+            //         case (ex instanceof UnauthorizedError):
+            //             toast(ex.message, { autoClose: 5000, type: "error" })
+            //             navigate(routes.user.login)
+            //             break;
 
-                    case (ex instanceof UnauthorizedError):
-                        toast(ex.message, { autoClose: 5000, type: "error" })
-                        navigate(routes.user.login)
-                        break;
-
-                    default:
-                        toast("Something went wrong. Please try again later", { autoClose: 5000, type: "error" })
-                        setError(ex as string)
-                        break;
-                }
-            }
+            //         default:
+            //             toast("Something went wrong. Please try again later", { autoClose: 5000, type: "error" })
+            //             setError(ex as string)
+            //             break;
+            //     }
+            // }
 
         }
 

@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import NameLogo from "@web/assets/icons/profile.svg";
-import EmailLogo from "@web/assets/icons/email.svg";
-import PasswordLogo from '@web/assets/icons/password.svg';
-import HideLogo from "@web/assets/icons/hide.svg";
+import NameLogo from "@/assets/icons/profile.svg";
+import EmailLogo from "@/assets/icons/email.svg";
+import PasswordLogo from '@/assets/icons/password.svg';
+import HideLogo from "@/assets/icons/hide.svg";
 import styles from "./Input.module.css"
 
 export interface IFormInputProps {

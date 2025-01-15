@@ -1,6 +1,6 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios";
+import { AxiosError, HttpStatusCode } from "axios";
 
-import { NetworkError, UnauthorizedError } from "../errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors";
 import { axiosInstance } from "../instance";
 import { apiUrls } from "../URLs";
 import { InvalidTaskId } from "./getTaskPublic";
@@ -12,33 +12,34 @@ export interface IUpdateTaskStatusBody {
 }
 
 
-export const updateTaskStatusService = async (payload: IUpdateTaskStatusBody, signal: GenericAbortSignal) => {
-    return new Promise(async (resolve, reject) => {
+export const updateTaskStatusService = async (payload: IUpdateTaskStatusBody) => {
+    return new Promise(async (resolve: (value: UserOfflineError | UnauthorizedError | NetworkError | InvalidTaskId) => void) => {
+
+        if (navigator.onLine === false) {
+            const userOfflineErrorObj = new UserOfflineError();
+            return resolve(userOfflineErrorObj)
+        }
+
         try {
-            const result = await axiosInstance.patch(apiUrls.updateTaskStatus, payload, { withCredentials: true, signal })
+            const result = await axiosInstance.patch(apiUrls.updateTaskStatus, payload, { withCredentials: true })
 
             resolve(result.data)
         }
         catch (ex) {
             if (ex instanceof AxiosError) {
-
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.Unauthorized):
                         const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj);
+                        return resolve(unauthorizedErrorObj);
 
                     case (ex.response?.status === HttpStatusCode.NotFound):
                         const errorObj = new InvalidTaskId();
-                        return reject(errorObj);
-
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkError = new NetworkError();
-                        return reject(networkError);
+                        return resolve(errorObj);
                 }
 
                 console.log(ex)
-                return reject("Please try again later")
+                const networkError = new NetworkError();
+                return resolve(networkError);
             }
         }
     })

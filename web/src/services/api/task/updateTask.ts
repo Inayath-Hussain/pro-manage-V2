@@ -1,10 +1,10 @@
-import { AxiosError, GenericAbortSignal, HttpStatusCode } from "axios"
+import { AxiosError, HttpStatusCode } from "axios"
 
 import { ITaskJSON } from "@/store/slices/taskSlice"
 import { InvalidTaskId } from "./getTaskPublic"
 import { axiosInstance } from "../instance"
 import { apiUrls } from "../URLs"
-import { NetworkError, UnauthorizedError } from "../errors"
+import { NetworkError, UnauthorizedError, UserOfflineError } from "../errors"
 import { IAddTaskBody } from "./addTask"
 
 
@@ -48,10 +48,16 @@ export class UpdateTaskResponse {
 }
 
 
-export const updateTaskService = async (payload: IUpdateTaskBody, signal: GenericAbortSignal) =>
-    new Promise<ITaskJSON>(async (resolve, reject) => {
+export const updateTaskService = async (payload: IUpdateTaskBody) =>
+    new Promise(async (resolve: (values: ITaskJSON | UpdateTaskMiddlewareError | InvalidTaskId | UserOfflineError | UnauthorizedError | NetworkError) => void) => {
+
+        if (navigator.onLine === false) {
+            const userOfflineErrorObj = new UserOfflineError();
+            return resolve(userOfflineErrorObj)
+        }
+
         try {
-            const result = await axiosInstance.put(apiUrls.updateTask, payload, { withCredentials: true, signal })
+            const result = await axiosInstance.put(apiUrls.updateTask, payload, { withCredentials: true })
 
             const taskObj = new UpdateTaskResponse(result.data.message, result.data.task);
 
@@ -62,26 +68,22 @@ export const updateTaskService = async (payload: IUpdateTaskBody, signal: Generi
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
                         const updateTaskBodyError = new UpdateTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
-                        return reject(updateTaskBodyError)
+                        return resolve(updateTaskBodyError)
 
 
                     case (ex.response?.status === HttpStatusCode.NotFound):
                         const invalidTaskIdObj = new InvalidTaskId();
-                        return reject(invalidTaskIdObj)
+                        return resolve(invalidTaskIdObj)
 
 
                     case (ex.response?.status === HttpStatusCode.Unauthorized):
                         const unauthorizedErrorObj = new UnauthorizedError();
-                        return reject(unauthorizedErrorObj);
-
-
-                    case (ex.code === AxiosError.ERR_NETWORK):
-                        const networkErrorObj = new NetworkError();
-                        return reject(networkErrorObj);
+                        return resolve(unauthorizedErrorObj);
                 }
             }
 
             console.log(ex)
-            return reject("Please try again later");
+            const networkErrorObj = new NetworkError();
+            return resolve(networkErrorObj);
         }
     })

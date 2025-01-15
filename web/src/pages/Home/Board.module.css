@@ -1,4 +1,4 @@
-@import url("@web/styles.css");
+@import url("@/styles.css");
 
 .board_page_container {
     font-family: var(--poppins);

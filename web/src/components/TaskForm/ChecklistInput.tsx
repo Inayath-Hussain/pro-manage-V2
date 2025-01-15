@@ -1,6 +1,6 @@
 import { IChecklist } from "@/store/slices/taskSlice";
 
-import DeleteLogo from "@web/assets/icons/delete-logo.svg";
+import DeleteLogo from "@/assets/icons/delete-logo.svg";
 import { HandleChecklistItemChange } from "../modal/contents/TaskForm.interface";
 import styles from "./ChecklistInput.module.css"
 import AddLogo from "../Icons/Add";
