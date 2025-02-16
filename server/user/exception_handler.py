@@ -26,5 +26,16 @@ def clear_auth_cookies(exc, context):
     if isinstance(exc, NotAuthenticated):
         print("Permission Denied exception triggered")
         response = Response({"message": "Authentication token is missing"}, status=status.HTTP_401_UNAUTHORIZED)
+        return response
+
+
+    if response is None:
+        return Response(
+            {"error": str(exc)},  # Convert error message to JSON
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # Ensure all DRF-generated errors return JSON
+    response.data = {"error": response.data}
     
     return response
