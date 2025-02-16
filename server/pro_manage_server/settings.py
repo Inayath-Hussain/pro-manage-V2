@@ -20,6 +20,10 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "../env"))
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+ACCESS_TOKEN_SECRET = os.getenv('JWT_ACCESS_SECRET')
+REFRESH_TOKEN_SECRET = os.getenv('JWT_REFRESH_SECRET')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -53,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "user.middlewares.CustomAuthenticationMiddleware",
 ]
 
 ROOT_URLCONF = "pro_manage_server.urls"
@@ -134,3 +139,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'user.exception_handler.clear_auth_cookies',
+}
