@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "user"
+    "user",
+    "task",
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'user.exception_handler.clear_auth_cookies',
 }
+
+
+AUTH_USER_MODEL="user.User"

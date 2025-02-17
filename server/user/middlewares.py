@@ -109,7 +109,11 @@ class CustomAuthenticationMiddleware:
             
             print("start finding user", email)
             # user = User.objects.filter(email=email).first()
-            user = User.objects.get(email=email)
+            try:
+                user = User.objects.get(email=email)
+            except:
+                print("User not found")
+                raise AuthenticationFailed("User doesn't exist")
             # if not user:
             #     print("User not found")
             #     # expire both access and refresh cookie
