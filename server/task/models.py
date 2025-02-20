@@ -2,22 +2,20 @@ from django.db import models
 from django.conf import settings
 
 # Create your models here.
+class PriorityChoices(models.TextChoices):
+    HIGH = "high", "HIGH"
+    MODERATE = "moderate", "MODERATE"
+    LOW = "low", "LOW"
+
+
+class StatusChoices(models.TextChoices):
+    BACKLOG = "backlog", "BACKLOG"
+    IN_PROGRESS = "in-progress", "IN-PROGRESS"
+    TO_DO = "to-do", "TO-DO"
+    DONE = "done", "DONE"
+
 
 class Task(models.Model):
-    
-    class PriorityChoices(models.TextChoices):
-        HIGH = "high", "HIGH"
-        MODERATE = "moderate", "MODERATE"
-        LOW = "low", "LOW"
-
-    
-    class StatusChoices(models.TextChoices):
-        BACKLOG = "backlog", "BACKLOG"
-        IN_PROGRESS = "in-progress", "IN-PROGRESS"
-        TO_DO = "to-do", "TO-DO"
-        DONE = "done", "DONE"
-
-
     
     title = models.CharField(255)
     due_date = models.DateField()
