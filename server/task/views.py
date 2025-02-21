@@ -155,3 +155,21 @@ class UpdateChecklistItemDone(APIView):
             print(e)
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+
+
+class GetTaskPublic(APIView):
+
+    def get(self, request: Request, task_id):
+        try:
+            task_obj = Task.objects.filter(id=task_id).prefetch_related("checklist_set").first()
+            serializer = GetTaskSerializer(task_obj)
+            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+        
+        except Task.DoesNotExist:
+            return Response({"error": "Task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            print(e)
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
