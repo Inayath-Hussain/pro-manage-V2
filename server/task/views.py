@@ -50,7 +50,7 @@ class CreateNewTask(APIView):
 
             print("trying to save")
             serializer.save(user=user_id)
-            return Response({"message": "valid data"}, status=status.HTTP_200_OK)
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
@@ -82,6 +82,21 @@ class UpdateTask(APIView):
 
 
         return Response({"message": "dummy"}, status=status.HTTP_200_OK)
+    
+
+
+    def delete(self, request:Request, task_id):
+        user_id = request.user.id
+        try:
+            task_obj = Task.objects.get(id=task_id, user=user_id)
+            task_obj.delete()
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
+
+        except Task.DoesNotExist:
+            return Response({"error": "task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
