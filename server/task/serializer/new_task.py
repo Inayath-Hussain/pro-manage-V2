@@ -25,7 +25,7 @@ class CreateNewTaskSerializer(serializers.ModelSerializer):
 
         checklist_objs = Checklist.objects.bulk_create([Checklist(task=task_obj, **item) for item in checklist])
 
-        return {**task_obj.__dict__, "checklist": checklist_objs}
+        return {**task_obj.__dict__, "checklist_set": checklist_objs}
     
     
     def validate_checklist(self, data):

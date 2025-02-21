@@ -49,8 +49,9 @@ class CreateNewTask(APIView):
             print(serializer.validated_data)
 
             print("trying to save")
-            serializer.save(user=user_id)
-            return Response({"message": "success"}, status=status.HTTP_200_OK)
+            instance = serializer.save(user=user_id)
+            serializer = GetTaskSerializer(instance)
+            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
