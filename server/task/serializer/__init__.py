@@ -2,3 +2,4 @@ from .get_task import GetTaskSerializer
 from .new_task import CreateNewTaskSerializer, CreateChecklistSerializer
 from .update_task import UpdateTaskSerializer
 from .update_task_status import UpdateTaskStatusSerializer
+from .update_checklist_done import UpdateChecklistDoneSerializer
