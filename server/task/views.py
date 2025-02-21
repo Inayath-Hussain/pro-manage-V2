@@ -6,10 +6,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 
-from .serializer.new_task import CreateNewTaskSerializer
-from .serializer.get_task import GetTaskSerializer
-from .serializer.update_task import UpdateTaskSerializer
-from .models import Task
+
+# from .serializer.new_task import CreateNewTaskSerializer
+# from .serializer.get_task import GetTaskSerializer
+# from .serializer.update_task import UpdateTaskSerializer
+# from .serializer.update_task_status import UpdateTaskStatusSerializer
+
+from .serializer import CreateNewTaskSerializer, GetTaskSerializer, UpdateTaskSerializer, UpdateTaskStatusSerializer
+
+from .models import Checklist, Task
 
 # Create your views here.
 
@@ -80,4 +85,46 @@ class UpdateTask(APIView):
 
 
 
+
+
+class UpdateTaskStatus(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request: Request, task_id):
+        user_id = request.user.id
+
+        try:
+            print(task_id)
+            task_obj = Task.objects.get(id=task_id, user=user_id)
+            serializer = UpdateTaskStatusSerializer(task_obj, data=request.data)
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            
+            serializer.save()
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
+
+        except Task.DoesNotExist:
+            return Response({"error": "Task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            print(e)
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+
+# class UpdateChecklistItemDone(APIView):
+#     def patch(self, request: Request, task_id, checklist_item_id):
+#         user_id = request.user.id
+
+#         try:
+#             task_obj = Task.objects.get(id=task_id, user=user_id)
+#             checklist_obj = Checklist.objects.get(id=checklist_item_id, task=task_obj.id)
+#         except Task.DoesNotExist:
+#             return Response({"error": "Task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+#         except Exception as e:
+#             print(e)
+#             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
