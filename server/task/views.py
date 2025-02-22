@@ -27,7 +27,6 @@ class GetAllUserTasks(APIView):
         # get all user tasks
         
         user_id = request.user.id
-        print("user id", user_id)
 
         tasks_queryset = Task.objects.filter(user=user_id).prefetch_related("checklist_set")
         tasks = GetTaskSerializer(tasks_queryset, many=True)
@@ -47,10 +46,6 @@ class CreateNewTask(APIView):
         serializer = CreateNewTaskSerializer(data=request.data)
 
         if serializer.is_valid():
-            print("data is valid")
-            print(serializer.validated_data)
-
-            print("trying to save")
             instance = serializer.save(user=user_id)
             serializer = GetTaskSerializer(instance)
             return Response({"data": serializer.data}, status=status.HTTP_200_OK)
@@ -66,25 +61,20 @@ class UpdateTask(APIView):
 
     def put(self, request:Request, task_id):
         user_id = request.user.id
-        print(task_id)
 
         try:
         # get task obj
             task_obj = Task.objects.get(id=task_id, user=user_id)
             # validate data
             serializer = UpdateTaskSerializer(task_obj, data=request.data)
-            print("is serializer valid", serializer.is_valid())
-
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
             serializer.save()
-
         except ObjectDoesNotExist:
             return Response({"error": "Task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-        return Response({"message": "dummy"}, status=status.HTTP_200_OK)
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
     
 
 
@@ -112,7 +102,6 @@ class UpdateTaskStatus(APIView):
         user_id = request.user.id
 
         try:
-            print(task_id)
             task_obj = Task.objects.get(id=task_id, user=user_id)
             serializer = UpdateTaskStatusSerializer(task_obj, data=request.data)
 

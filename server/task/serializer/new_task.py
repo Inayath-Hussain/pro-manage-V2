@@ -18,11 +18,8 @@ class CreateNewTaskSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user = validated_data.get('user')
-        print(validated_data.get('user'))
-        print("create method", self.validated_data)
         checklist = self.validated_data.pop('checklist')
         task_obj = Task.objects.create(**self.validated_data, user_id=user)
-
         checklist_objs = Checklist.objects.bulk_create([Checklist(task=task_obj, **item) for item in checklist])
 
         return {**task_obj.__dict__, "checklist_set": checklist_objs}

@@ -47,9 +47,6 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Task, data):
         with transaction.atomic():
-            print(instance)
-            print("now data")
-            print(data)
             checklist_data = data.pop('checklist')
             # print(checklist_data)
 
@@ -59,13 +56,11 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
             instance.priority = data.get("priority", instance.priority)
             instance.status = data.get("status", instance.status)
             instance.save()
-            print("task updated")
         ##################################################################################################
 
 
             # get all checklist items of task saved in db ✔
             instance_items = { item.id: item for item in instance.checklist_set.all()}
-            print("checklist items saved in db", instance_items)
 
         ######################################### Checklist Item Updation ########################################
             updated_items = []
@@ -79,10 +74,8 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
                     updated_items.append(instance_items[id])
                     requested_item_ids.append(id)
 
-            print("items to be updated", updated_items)
 
             if updated_items:
-                print("trying to bulk update", updated_items)
                 Checklist.objects.bulk_update(updated_items, ['description', 'done'])
         ##########################################################################################################
 
@@ -91,9 +84,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
 
         ######################################### Checklist Item Creation ############################################
             new_checklist_items = [Checklist(**item, task_id =instance.id) for item in checklist_data if not "id" in item]
-            print("items to be created", new_checklist_items)
             if new_checklist_items:
-                print("trying to bulk create", new_checklist_items)
                 Checklist.objects.bulk_create(new_checklist_items)
         ###############################################################################################################
             
@@ -104,9 +95,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
             for key in instance_items.keys():
                 if not key in requested_item_ids:
                     items_to_be_deleted.append(key)
-            print("id of items to be deleted", items_to_be_deleted)
             if items_to_be_deleted:
-                print("trying to bulk delete", items_to_be_deleted)
                 Checklist.objects.filter(id__in=items_to_be_deleted).delete()
         ###############################################################################################################
 
