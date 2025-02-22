@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.db.models import Count
+from django.utils.timezone import now
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -174,3 +176,20 @@ class GetTaskPublic(APIView):
         except Exception as e:
             print(e)
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+class GetTaskAnalytics(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request:Request):
+        user_id = request.user.id
+
+        status_data = Task.objects.filter(user=user_id).values('status').annotate(count=Count('id'))
+        priority_data = Task.objects.filter(user=user_id).values('priority').annotate(count=Count('id'))
+        due_date_data = Task.objects.filter(user=user_id, due_date__gte=now().date()).values('due_date').count()
+        
+        status_data = { item['status']: item['count'] for item in status_data}
+        priority_data = { item['priority']: item['count'] for item in priority_data}
+
+        return Response({"status": status_data, "priority": priority_data, "due_date": due_date_data}, status=status.HTTP_200_OK)

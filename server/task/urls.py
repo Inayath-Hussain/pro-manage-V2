@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GetAllUserTasks, CreateNewTask, GetTaskPublic, UpdateChecklistItemDone, UpdateTask, UpdateTaskStatus
+from .views import GetAllUserTasks, CreateNewTask, GetTaskAnalytics, GetTaskPublic, UpdateChecklistItemDone, UpdateTask, UpdateTaskStatus
 
 urlpatterns = [
     path('', GetAllUserTasks.as_view(), name='get-all-user-tasks'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:task_id>/status/', UpdateTaskStatus.as_view(), name='update-task-status'),
     path('<int:task_id>/checklist/<int:checklist_id>/', UpdateChecklistItemDone.as_view(), name='update-checklist-item-done'),
     path('<int:task_id>/public/', GetTaskPublic.as_view(), name='get-task-public'),
+    path('analytics/', GetTaskAnalytics.as_view(), name='get-task-analytics'),
 ]
