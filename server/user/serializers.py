@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import User
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -8,3 +9,10 @@ class LoginSerializer(serializers.Serializer):
 
 class RegisterSerializer(LoginSerializer):
     name = serializers.CharField()
+
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'name',]

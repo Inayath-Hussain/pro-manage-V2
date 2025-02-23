@@ -8,7 +8,8 @@ from rest_framework import status
 
 
 
-from .serializers import LoginSerializer, RegisterSerializer
+
+from .serializers import LoginSerializer, RegisterSerializer, UserInfoSerializer
 from .models import User
 from .utilities import create_access_token, create_refresh_token, set_access_token_cookie, set_refresh_token_cookie, verify_access_token
 
@@ -79,6 +80,21 @@ class RegisterView(APIView):
         
         else:
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+
+
+class GetUserInfo(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request: Request):
+        try:
+            user_obj = User.objects.get(id=request.user.id)
+            serializer = UserInfoSerializer(user_obj)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
