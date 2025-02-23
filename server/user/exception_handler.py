@@ -12,6 +12,9 @@ def clear_auth_cookies(exc, context):
     # call exception_handler to let django handle known exceptions properly.
     # After calling that a response returned or None
     # print("clear_auth_cookies custom exception handler")
+
+    print(exc)
+
     response = exception_handler(exc, context)
 
     # print("exception_handler function executed")
