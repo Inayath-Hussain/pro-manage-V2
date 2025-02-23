@@ -69,12 +69,14 @@ class UpdateTask(APIView):
             serializer = UpdateTaskSerializer(task_obj, data=request.data)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-            serializer.save()
+            data = serializer.save()
+            print(data)
+            serializer = GetTaskSerializer(data)
         except ObjectDoesNotExist:
             return Response({"error": "Task doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-        return Response({"message": "success"}, status=status.HTTP_200_OK)
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
     
 
 

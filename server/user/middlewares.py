@@ -29,18 +29,18 @@ class CustomAuthenticationMiddleware:
         refresh_cookie = request.COOKIES.get('refresh_token')
 
         if refresh_cookie:
-            print("refresh cookie found", refresh_cookie)
+            # print("refresh cookie found", refresh_cookie)
             # self._authenticate(request)
             try:
                 self._authenticate(request)
             except Exception as e:
-                print("Custom caught Authentication Failed error in custom middleware", e.detail)
+                # print("Custom caught Authentication Failed error in custom middleware", e.detail)
                 return self.handle_exception(request, e)
         else:
             request.user = AnonymousUser()
         
-        print("get_response triggered in Custom Authentication middleware")
-        print(f"MIDDLEWARE: request.user = {request.user} ({type(request.user)})")
+        # print("get_response triggered in Custom Authentication middleware")
+        # print(f"MIDDLEWARE: request.user = {request.user} ({type(request.user)})")
         response = self.get_response(request)
 
         # code to execute after view is called
@@ -51,28 +51,28 @@ class CustomAuthenticationMiddleware:
         new_refresh_token = getattr(request, "new_refresh_token", None)
 
         if new_access_token:
-            print("NEW ACCESS TOKEN IN MIDDLEWARE")
+            # print("NEW ACCESS TOKEN IN MIDDLEWARE")
             set_access_token_cookie(response, new_access_token)
 
         if new_refresh_token:
-            print("NEW REFRESH TOKEN IN MIDDLEWARE")
+            # print("NEW REFRESH TOKEN IN MIDDLEWARE")
             set_refresh_token_cookie(response, new_refresh_token)
 
         return response
 
 
     def handle_exception(self, request: Request, exception):
-        print("clear_auth_cookies custom exception handler")
+        # print("clear_auth_cookies custom exception handler")
         # response = exception_handler(exc, context)
 
-        print("exception_handler function executed")
+        # print("exception_handler function executed")
 
         if isinstance(exception, AuthenticationFailed):
             response = JsonResponse({"message": "Invalid tokens"}, status=status.HTTP_401_UNAUTHORIZED)
 
             delete_access_token_cookie(response)
             delete_refresh_token_cookie(response)
-            print("cookies deleted")
+            # print("cookies deleted")
 
             return response
         
@@ -89,36 +89,36 @@ class CustomAuthenticationMiddleware:
             if not access_cookie:
                 raise jwt.exceptions.ExpiredSignatureError()
 
-            print("Start access token verification")
+            # print("Start access token verification")
             payload = verify_access_token(access_cookie or '')
             email = payload.get('email')
             # email = jwt.decode(access_cookie, os.getenv('JWT_ACCESS_SECRET'), algorithms="HS256", options={"require": ["exp"]}).get('email')
-            print("access token verification passed")
+            # print("access token verification passed")
 
         except jwt.ExpiredSignatureError:
             # renew access token 
-            print("access token verification status - expired")
-            print("start refresh token verification")
+            # print("access token verification status - expired")
+            # print("start refresh token verification")
             payload = verify_refresh_token(refresh_cookie)
             email = payload.get('email')
-            print("refresh token verification passed")
+            # print("refresh token verification passed")
             # email = jwt.decode(refresh_cookie, os.getenv('JWT_REFRESH_SECRET'), algorithms="HS256", options={"require": ["exp"]}).get('email')
             
             if not email:
                 raise AuthenticationFailed("Invalid token")
             
-            print("start finding user", email)
+            # print("start finding user", email)
             # user = User.objects.filter(email=email).first()
             try:
                 user = User.objects.get(email=email)
             except:
-                print("User not found")
+                # print("User not found")
                 raise AuthenticationFailed("User doesn't exist")
             # if not user:
             #     print("User not found")
             #     # expire both access and refresh cookie
             #     return AuthenticationFailed("User doesn't exist")
-            print("User found")
+            # print("User found")
 
 
             
@@ -135,7 +135,7 @@ class CustomAuthenticationMiddleware:
             # return (user, new_access_token)
 
         except ObjectDoesNotExist:
-            print("User not found")
+            # print("User not found")
             raise AuthenticationFailed("User doesn't exist")
 
         except:
@@ -146,20 +146,20 @@ class CustomAuthenticationMiddleware:
         else:
             # check user with email exists in db
             try:
-                print("searching for user", email)
+                # print("searching for user", email)
                 user = User.objects.get(email=email)
             except:
-                    print("User not found")
+                    # print("User not found")
                     # expire both access and refresh cookie
                     raise AuthenticationFailed("User doesn't exist")
             else:
-                print("User found")
+                # print("User found")
                 renewed, new_refresh_token = self.renewRefreshToken(refresh_cookie)
                 if renewed:
                     request.new_refresh_token = new_refresh_token
 
                 request.user = user
-                print("request.user set", request.user)
+                # print("request.user set", request.user)
             # request.user.is_authenticated = True
             # return (user, access_cookie)
 
@@ -186,7 +186,7 @@ class CustomAuthenticationMiddleware:
 
                 if seconds_difference > 86400:
                     new_refresh_token = create_refresh_token(email)
-                    print("refresh token renewed")
+                    # print("refresh token renewed")
                     return (True, new_refresh_token)
                 else:
                     return (False, "")

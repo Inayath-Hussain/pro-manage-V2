@@ -11,20 +11,20 @@ def clear_auth_cookies(exc, context):
 
     # call exception_handler to let django handle known exceptions properly.
     # After calling that a response returned or None
-    print("clear_auth_cookies custom exception handler")
+    # print("clear_auth_cookies custom exception handler")
     response = exception_handler(exc, context)
 
-    print("exception_handler function executed")
+    # print("exception_handler function executed")
 
     if isinstance(exc, AuthenticationFailed):
-        print("Authentication Failed exception triggered")
+        # print("Authentication Failed exception triggered")
         response = Response({"message": "Invalid tokens"}, status=status.HTTP_401_UNAUTHORIZED)
         delete_access_token_cookie(response)
         delete_refresh_token_cookie(response)
         return response
     
     if isinstance(exc, NotAuthenticated):
-        print("Permission Denied exception triggered")
+        # print("Permission Denied exception triggered")
         response = Response({"message": "Authentication token is missing"}, status=status.HTTP_401_UNAUTHORIZED)
         return response
 

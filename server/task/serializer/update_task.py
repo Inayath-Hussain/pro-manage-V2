@@ -85,7 +85,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
         ######################################### Checklist Item Creation ############################################
             new_checklist_items = [Checklist(**item, task_id =instance.id) for item in checklist_data if not "id" in item]
             if new_checklist_items:
-                Checklist.objects.bulk_create(new_checklist_items)
+                new_checklist_instances = Checklist.objects.bulk_create(new_checklist_items)
         ###############################################################################################################
             
 
@@ -99,8 +99,8 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
                 Checklist.objects.filter(id__in=items_to_be_deleted).delete()
         ###############################################################################################################
 
-
-            return instance
+            updated_items.extend(new_checklist_instances)
+            return {**instance.__dict__, "checklist_set": updated_items}
 
     
     def validate_checklist(self, data):
