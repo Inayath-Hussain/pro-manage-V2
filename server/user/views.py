@@ -9,7 +9,7 @@ from rest_framework import status
 
 
 
-from .serializers import LoginSerializer, RegisterSerializer, UserInfoSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UserInfoSerializer, UpdateUserInfoSerializer
 from .models import User
 from .utilities import create_access_token, create_refresh_token, set_access_token_cookie, set_refresh_token_cookie, verify_access_token
 
@@ -71,7 +71,7 @@ class RegisterView(APIView):
                 access_token = create_access_token(email)
                 refresh_token = create_refresh_token(email)
 
-                response = Response({"message": "Success"}, status=status.HTTP_200_OK)
+                response = Response({"message": "Success"}, status=status.HTTP_201_CREATED)
 
                 set_access_token_cookie(response, access_token)
                 set_refresh_token_cookie(response, refresh_token)
@@ -89,12 +89,44 @@ class GetUserInfo(APIView):
     
     def get(self, request: Request):
         try:
-            user_obj = User.objects.get(id=request.user.id)
-            serializer = UserInfoSerializer(user_obj)
+            serializer = UserInfoSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class UpdateUserInfo(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request: Request):
+        serializer = UpdateUserInfoSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        username = serializer.validated_data.get('username')
+        old_password = serializer.validated_data.get('old_password')
+        new_password = serializer.validated_data.get('new_password')
+
+        if username:
+            request.user.name = username
+
+        if old_password:
+            if not request.user.check_password(old_password):
+                return Response({"error": "old password does not match"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if request.user.check_password(new_password):
+                return Response({"error": "new password cannot be same as old"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            request.user.set_password(new_password)
+        
+        request.user.save()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+
+        # request.user.check_password(serializer.validated_data['old_password'])
 
 
 

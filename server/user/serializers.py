@@ -16,3 +16,25 @@ class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'name',]
+
+
+
+class UpdateUserInfoSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False)
+    old_password = serializers.CharField(write_only=True, required=False)
+    new_password = serializers.CharField(write_only=True, required=False)
+
+    def validate(self, data):
+        username = data.get('username')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        
+        if not username and not (old_password and new_password):
+            raise serializers.ValidationError('Atleast either username or old and new passwords should be provided')
+        
+        if old_password and not new_password:
+            raise serializers.ValidationError("Both old and new password should be provided")
+        if new_password and not old_password:
+            raise serializers.ValidationError("Both old and new password should be provided")
+        
+        return data
