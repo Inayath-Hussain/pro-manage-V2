@@ -58,7 +58,9 @@ export const loginService = async (payload: ILoginBody) => {
 
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
-                        const loginBodyError = new LoginBodyError(ex.response.data.message, ex.response.data.errors);
+                        const loginBodyError = new LoginBodyError("Invalid data", {});
+                        const keys = Object.keys(ex.response.data);
+                        keys.forEach(k => loginBodyError.addFieldErrors(k as keyof ILoginBody, k[0]))
                         return resolve(loginBodyError)
 
                     // if email already exists or any error occurred in server

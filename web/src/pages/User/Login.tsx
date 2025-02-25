@@ -48,11 +48,27 @@ const LoginPage = () => {
 
             setLoading(true)
 
-            await loginService(formValues)
+            const result = await loginService(formValues)
 
-            setSubmitionError('')
+            switch (true) {
+                case (result instanceof LoginBodyError):
+                    setFormErrors(result.errors)
+                    break;
 
-            navigate(routes.home)
+                case (result instanceof NetworkError):
+                    setFormErrors(initialValues)
+                    setSubmitionError(result.message)
+                    break;
+
+                case (typeof result == "string"):
+                    setSubmitionError(result)
+                    break;
+
+                default:
+                    setSubmitionError('')
+                    navigate(routes.home)
+            }
+
         }
         catch (ex) {
             switch (true) {
@@ -68,14 +84,18 @@ const LoginPage = () => {
                     break;
 
 
-                case (ex instanceof LoginBodyError):
-                    setFormErrors(ex.errors)
-                    break;
+                // case (ex instanceof LoginBodyError):
+                //     setFormErrors(ex.errors)
+                //     break;
 
-                case (ex instanceof NetworkError):
-                    setFormErrors(initialValues)
-                    setSubmitionError(ex.message)
-                    break;
+                // case (ex instanceof NetworkError):
+                //     setFormErrors(initialValues)
+                //     setSubmitionError(ex.message)
+                //     break;
+
+                // case (typeof ex == "string"):
+                //     setSubmitionError(ex)
+                //     break;
 
                 default:
                     setFormErrors(initialValues)
