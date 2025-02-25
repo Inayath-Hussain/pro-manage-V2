@@ -12,6 +12,7 @@ import PublicTaskPage from './pages/Public/Index';
 import { routes } from './routes';
 
 import "react-toastify/ReactToastify.css"
+import RouteProtection from './components/RouteProtection';
 
 function App() {
 
@@ -24,10 +25,10 @@ function App() {
           <Route path={routes.user.register} element={<RegisterPage />} />
         </Route>
 
-        <Route path={routes.home} element={<HomePage />}>
-          <Route index element={<BoardPage />} />
-          <Route path={routes.analytics} element={<AnalyticsPage />} />
-          <Route path={routes.settings} element={<SettingsPage />} />
+        <Route path={routes.home} element={<RouteProtection> <HomePage /> </RouteProtection>}>
+          <Route index element={<RouteProtection> <BoardPage /> </RouteProtection>} />
+          <Route path={routes.analytics} element={<RouteProtection> <AnalyticsPage /> </RouteProtection>} />
+          <Route path={routes.settings} element={<RouteProtection> <SettingsPage /> </RouteProtection>} />
         </Route>
 
 
