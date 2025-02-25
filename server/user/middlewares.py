@@ -26,7 +26,7 @@ class CustomAuthenticationMiddleware:
         # authenticate request here and renew tokens as well
         # do not send response directly from here if user is not authenticated
 
-        refresh_cookie = request.COOKIES.get('refresh_token')
+        refresh_cookie = request.COOKIES.get('refreshToken')
 
         if refresh_cookie:
             # print("refresh cookie found", refresh_cookie)
@@ -82,8 +82,8 @@ class CustomAuthenticationMiddleware:
 
 
     def _authenticate(self, request: Request):
-        access_cookie = request.COOKIES.get('access_token')
-        refresh_cookie = request.COOKIES.get('refresh_token')
+        access_cookie = request.COOKIES.get('accessToken')
+        refresh_cookie = request.COOKIES.get('refreshToken')
 
         try:
             if not access_cookie:
