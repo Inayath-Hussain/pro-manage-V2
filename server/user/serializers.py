@@ -21,13 +21,13 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 class UpdateUserInfoSerializer(serializers.Serializer):
     username = serializers.CharField(required=False)
-    old_password = serializers.CharField(write_only=True, required=False)
-    new_password = serializers.CharField(write_only=True, required=False)
+    oldPassword = serializers.CharField(write_only=True, required=False)
+    newPassword = serializers.CharField(write_only=True, required=False)
 
     def validate(self, data):
         username = data.get('username')
-        old_password = data.get('old_password')
-        new_password = data.get('new_password')
+        old_password = data.get('oldPassword')
+        new_password = data.get('newPassword')
         
         if not username and not (old_password and new_password):
             raise serializers.ValidationError('Atleast either username or old and new passwords should be provided')

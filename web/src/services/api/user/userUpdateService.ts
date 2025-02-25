@@ -61,7 +61,7 @@ export const userUpdateService = async (payload: IUpdateBody) => {
 
                 switch (status) {
                     case HttpStatusCode.BadRequest:
-                        return resolve(ex.response?.data.message as string)
+                        return resolve(ex.response?.data.error as string)
 
                     case HttpStatusCode.Unauthorized:
                         const unauthorizedErrorObj = new UnauthorizedError();

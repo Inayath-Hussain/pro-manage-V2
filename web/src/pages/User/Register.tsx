@@ -141,14 +141,15 @@ const RegisterPage = () => {
         inputType: IFormInputProps["inputType"]
         placeHolderProp: IFormInputProps["placeHolderProp"]
         required: IFormInputProps["required"]
+        value: string
     }
 
     // form inputs
     const inputs: IinputsArray[] = [
-        { inputKey: "name", inputType: "name", placeHolderProp: "Name", required: true },
-        { inputKey: "email", inputType: "email", placeHolderProp: "Email", required: true },
-        { inputKey: "password", inputType: "password", placeHolderProp: "Password", required: true },
-        { inputKey: "confirmPassword", inputType: "password", placeHolderProp: "Confirm Password", required: true },
+        { inputKey: "name", value: formValues.name, inputType: "name", placeHolderProp: "Name", required: true },
+        { inputKey: "email", value: formValues.email, inputType: "email", placeHolderProp: "Email", required: true },
+        { inputKey: "password", value: formValues.password, inputType: "password", placeHolderProp: "Password", required: true },
+        { inputKey: "confirmPassword", value: formValues.confirmPassword, inputType: "password", placeHolderProp: "Confirm Password", required: true },
     ]
 
 
@@ -164,7 +165,7 @@ const RegisterPage = () => {
             {inputs.map(inp => (
 
                 <div className={styles.form_input_container} key={inp.inputKey}>
-                    <FormInput inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)} required={inp.required}
+                    <FormInput value={inp.value} inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)} required={inp.required}
                         containerclassName={styles.form_input} placeHolderProp={inp.placeHolderProp} />
 
                     <FormError message={formErrors[inp.inputKey]} />

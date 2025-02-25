@@ -113,12 +113,13 @@ const LoginPage = () => {
         inputType: IFormInputProps["inputType"]
         placeHolderProp: IFormInputProps["placeHolderProp"]
         required: IFormInputProps["required"]
+        value: string
     }
 
     // form inputs
     const inputs: IinputsArray[] = [
-        { inputKey: "email", inputType: "email", placeHolderProp: "Email", required: true },
-        { inputKey: "password", inputType: "password", placeHolderProp: "Password", required: true }
+        { inputKey: "email", value: formValues.email, inputType: "email", placeHolderProp: "Email", required: true },
+        { inputKey: "password", value: formValues.password, inputType: "password", placeHolderProp: "Password", required: true }
     ]
 
     return (
@@ -132,7 +133,7 @@ const LoginPage = () => {
             {inputs.map(inp => (
 
                 <div className={styles.form_input_container} key={inp.inputKey}>
-                    <FormInput inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)}
+                    <FormInput value={inp.value} inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)}
                         containerclassName={styles.form_input} required={inp.required} />
 
                     <FormError message={formErrors[inp.inputKey]} />

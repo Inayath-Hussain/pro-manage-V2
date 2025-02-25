@@ -32,10 +32,10 @@ const SettingsPage = () => {
     const passwordSchema = z.string().trim()
 
     const formSchmea = z.object({
-        name: z.string().trim(),
+        username: z.string().trim(),
         oldPassword: passwordSchema,
         newPassword: passwordSchema
-    }).superRefine(({ name, newPassword, oldPassword }, ctx) => {
+    }).superRefine(({ username, newPassword, oldPassword }, ctx) => {
 
         // function to create zod custom error
         const addCustomIssue = (path: string, message: string) =>
@@ -62,7 +62,7 @@ const SettingsPage = () => {
 
 
         // if both name and passwords field are empty then issue an error and return
-        if (name === "" && newPassword === "" && oldPassword === "")
+        if (username === "" && newPassword === "" && oldPassword === "")
             return addCustomIssue("all", "Atleast Name or passwords should be filled to update")
 
         // if only one of the password field has value then issue an error
@@ -93,19 +93,30 @@ const SettingsPage = () => {
     type IForm = z.infer<typeof formSchmea>
 
     const initialValues: IForm = {
-        name: "",
+        username: "",
         oldPassword: "",
         newPassword: ""
     }
 
     const {
-        formValues,
+        formValues, setFormValues,
         formErrors, setFormErrors,
         submitionError, setSubmitionError,
         loading, setLoading,
         handleChange
     } = useForm({ initialValues })
 
+    // useEffect(() => {
+    //     console.log("top", formValues.username, userInfo.name, formValues.oldPassword)
+    // }, [formValues])
+
+    useEffect(() => {
+        console.log("use effect triggered", userInfo.name)
+        setFormValues((prev: any) => ({
+            ...prev,
+            username: userInfo.name
+        }))
+    }, [userInfo.name])
 
     const toastIdRef = useRef<Id>("")
 
@@ -140,7 +151,10 @@ const SettingsPage = () => {
             setLoading(true)
 
             // use update service
-            const result = await userUpdateService(formValues)
+            const result = await userUpdateService({
+                ...(formValues.username ? { username: formValues.username } : {}),
+                ...(formValues.oldPassword && formValues.newPassword ? { oldPassword: formValues.oldPassword, newPassword: formValues.newPassword } : {})
+            })
 
             switch (true) {
                 case (result instanceof UserOfflineError):
@@ -170,15 +184,19 @@ const SettingsPage = () => {
                 case (typeof result === 'string'):
                     setLoading(false)
                     setSubmitionError(result);
+                    errorToast(toastIdRef.current, result)
                     break;
 
                 default:
                     setLoading(false)
                     setFormErrors(initialValues)
                     setSubmitionError("")
-                    dispatch(updateNameAction({ name: formValues.name }))
-
-                    toast.update("Saved Data", { type: "success", autoClose: 5000 })
+                    dispatch(updateNameAction({ name: formValues.username }))
+                    setFormValues({
+                        ...initialValues,
+                        username: formValues.username
+                    })
+                    toast.update(toastIdRef.current, { render: "Updated", type: "success", autoClose: 5000, isLoading: false })
 
             }
 
@@ -240,14 +258,16 @@ const SettingsPage = () => {
         placeHolderProp: IFormInputProps["placeHolderProp"]
         required: IFormInputProps["required"],
         defaultValue?: IFormInputProps["defaultValue"]
+        value: string
     }
 
 
     // form inputs
+    console.log(userInfo.name)
     const inputs: IinputsArray[] = [
-        { inputKey: "name", inputType: "name", placeHolderProp: "Name", required: false, defaultValue: userInfo.name },
-        { inputKey: "oldPassword", inputType: "password", placeHolderProp: "Old Password", required: false },
-        { inputKey: "newPassword", inputType: "password", placeHolderProp: "New Password", required: false },
+        { inputKey: "username", value: formValues.username, inputType: "name", placeHolderProp: "Name", required: false },
+        { inputKey: "oldPassword", value: formValues.oldPassword, inputType: "password", placeHolderProp: "Old Password", required: false },
+        { inputKey: "newPassword", value: formValues.newPassword, inputType: "password", placeHolderProp: "New Password", required: false },
     ]
 
 
@@ -263,8 +283,8 @@ const SettingsPage = () => {
 
                 {inputs.map(inp => (
                     <Fragment key={inp.inputKey}>
-                        <FormInput inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)} required={inp.required}
-                            placeHolderProp={inp.placeHolderProp} containerclassName={styles.input_container} defaultValue={inp.defaultValue} />
+                        <FormInput value={inp.value} inputType={inp.inputType} onChange={e => handleChange(inp.inputKey, e)} required={inp.required}
+                            placeHolderProp={inp.placeHolderProp} containerclassName={styles.input_container} />
 
                         <FormError message={formErrors[inp.inputKey]} />
                     </Fragment>

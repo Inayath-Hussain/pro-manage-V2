@@ -107,8 +107,8 @@ class UpdateUserInfo(APIView):
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
         username = serializer.validated_data.get('username')
-        old_password = serializer.validated_data.get('old_password')
-        new_password = serializer.validated_data.get('new_password')
+        old_password = serializer.validated_data.get('oldPassword')
+        new_password = serializer.validated_data.get('newPassword')
 
         if username:
             request.user.name = username
