@@ -10,6 +10,7 @@ psycopg2 = "*"
 django-debug-toolbar = "*"
 djangorestframework = "*"
 pyjwt = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
