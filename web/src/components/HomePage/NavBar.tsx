@@ -1,15 +1,10 @@
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 import Logo from "@/assets/icons/pro-manage-logo.svg"
 import LogoutIcon from '@/assets/icons/Logout.svg'
 import useModal from "@/hooks/useModal";
 import { useOnline } from "@/hooks/useOnline";
 import { routes } from "@/routes";
-import { NetworkError } from "@/services/api/errors";
-import { logoutService } from "@/services/api/user/logoutService";
-import { clearUserInfoAction } from "@/store/slices/userInfoSlice";
 import ConfirmModalComponent from "../modal/contents/Confirm";
 
 import AnalyticsIcon from "../Icons/Analytics";
@@ -18,13 +13,17 @@ import SettingsIcon from "../Icons/Settings";
 import { IIconProps } from "../Icons/interface";
 
 import styles from "./NavBar.module.css"
+import { useContext } from "react";
+import { authTokenContext } from "@/context/authToken";
 
 
 const NavBar = () => {
 
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
+
+    const { logout } = useContext(authTokenContext);
 
     const { isOnline } = useOnline();
     const { showModal, hideModal, ModalPortal } = useModal();
@@ -38,20 +37,25 @@ const NavBar = () => {
     }
 
     const handleLogout = async () => {
-        try {
-            await logoutService()
+        logout();
+        navigate(routes.user.login);
+        hideModal();
+        // try {
+        //     // await logoutService()
 
-            dispatch(clearUserInfoAction());
-            navigate(routes.user.login);
-            hideModal();
-        }
-        catch (ex) {
-            if (ex instanceof NetworkError) return toast(ex.message, { type: "error" })  //Check your network and try again toast here
+        //     // dispatch(clearUserInfoAction());
 
-            // Something went wrong toast here
-            toast("Something went wrong toast", { type: "error" })
-            console.log("logout")
-        }
+        //     logout();
+        //     navigate(routes.user.login);
+        //     hideModal();
+        // }
+        // catch (ex) {
+        //     if (ex instanceof NetworkError) return toast(ex.message, { type: "error" })  //Check your network and try again toast here
+
+        //     // Something went wrong toast here
+        //     toast("Something went wrong toast", { type: "error" })
+        //     console.log("logout")
+        // }
     }
 
 

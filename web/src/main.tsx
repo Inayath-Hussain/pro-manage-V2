@@ -9,13 +9,18 @@ import { store } from './store/index.ts';
 
 import './styles.css';
 import './reset.css';
+import { AuthTokenProvider } from './context/authToken.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
 
       <Provider store={store}>
-        <App />
+        <AuthTokenProvider>
+
+          <App />
+
+        </AuthTokenProvider>
       </Provider>
 
     </BrowserRouter>
