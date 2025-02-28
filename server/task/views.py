@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.shortcuts import render
 from django.db.models import Count
 from django.utils.timezone import now
@@ -25,10 +26,19 @@ class GetAllUserTasks(APIView):
 
     def get(self, request: Request):
         # get all user tasks
-        
+        filter = request.query_params.get('filter')  
         user_id = request.user.id
 
-        tasks_queryset = Task.objects.filter(user=user_id).prefetch_related("checklist_set")
+        # create from date
+        today = now()
+        if filter == 'today':
+            from_date = today - timedelta(days=1)
+        elif filter == 'month':
+            from_date = today - timedelta(days=30)
+        else:
+            from_date = today - timedelta(days=7)
+
+        tasks_queryset = Task.objects.filter(user=user_id, created_at__range=[from_date, today]).prefetch_related("checklist_set")
         tasks = GetTaskSerializer(tasks_queryset, many=True)
         
         return Response({"data": tasks.data}, status=status.HTTP_200_OK)
