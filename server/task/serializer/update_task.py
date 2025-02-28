@@ -38,11 +38,12 @@ class UpdateChecklistSerializer(serializers.ModelSerializer):
 class UpdateTaskSerializer(serializers.ModelSerializer):
     checklist = UpdateChecklistSerializer(many=True)
     priority = serializers.ChoiceField(choices=PriorityChoices, required=True)
-    status = serializers.ChoiceField(choices=StatusChoices, required=True)
+    # status = serializers.ChoiceField(choices=StatusChoices, required=True)
+    due_date = serializers.DateField(required=False)
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'priority', 'due_date', 'status', 'checklist',]
+        fields = ['id', 'title', 'priority', 'due_date', 'checklist',]
 
 
     def update(self, instance: Task, data):
@@ -54,7 +55,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
             instance.title = data.get("title", instance.title)
             instance.due_date = data.get("due_date", instance.due_date)
             instance.priority = data.get("priority", instance.priority)
-            instance.status = data.get("status", instance.status)
+            # instance.status = data.get("status", instance.status)
             instance.save()
         ##################################################################################################
 
@@ -84,6 +85,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
 
         ######################################### Checklist Item Creation ############################################
             new_checklist_items = [Checklist(**item, task_id =instance.id) for item in checklist_data if not "id" in item]
+            new_checklist_instances = []
             if new_checklist_items:
                 new_checklist_instances = Checklist.objects.bulk_create(new_checklist_items)
         ###############################################################################################################

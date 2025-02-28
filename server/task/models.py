@@ -18,7 +18,7 @@ class StatusChoices(models.TextChoices):
 class Task(models.Model):
     
     title = models.CharField(255)
-    due_date = models.DateField()
+    due_date = models.DateField(null=True)
     priority = models.CharField(
         choices=PriorityChoices,
         default=PriorityChoices.HIGH
