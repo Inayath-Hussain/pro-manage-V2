@@ -25,13 +25,14 @@ export class InvalidCheckListItemId {
 
 export const updateDoneService = (payload: IUpdateDoneBody) => {
     return new Promise(async (resolve) => {
-        if (navigator.onLine === true) {
+        if (navigator.onLine === false) {
             const userOfflineError = new UserOfflineError();
             return resolve(userOfflineError);
         }
 
         try {
-            const result = await axiosInstance.patch(apiUrls.updateDone, payload, { withCredentials: true })
+            const result = await axiosInstance.patch(apiUrls.updateDone(payload.taskId, payload.checkListId), payload, { withCredentials: true })
+            console.log(result)
             return resolve(result)
         }
         catch (ex) {

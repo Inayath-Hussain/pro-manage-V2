@@ -10,7 +10,7 @@ import { toast, Id } from "react-toastify";
 
 import CheckListArror from "@/assets/icons/checkList-arrow.svg"
 import { routes } from "@/routes";
-import { NetworkError, UnauthorizedError } from "@/services/api/errors";
+import { NetworkError, UnauthorizedError, UserOfflineError } from "@/services/api/errors";
 import { updateDoneService } from "@/services/api/task/updateDone";
 import { removeCheckListItemAction, removeTaskAction, updateDoneAction } from "@/store/slices/taskSlice";
 import Options from "./Options";
@@ -63,6 +63,12 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
         const result = await updateDoneService({ taskId: task.id, checkListId, done: !item.done })
 
         switch (true) {
+            case (result instanceof UserOfflineError):
+                setLoading(false)
+                errorToast(toastIdRef.current, result.message)
+                return
+
+
             case (result instanceof UnauthorizedError):
                 setLoading(false)
                 errorToast(toastIdRef.current, result.message)
