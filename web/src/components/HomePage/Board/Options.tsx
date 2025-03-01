@@ -70,10 +70,10 @@ const Options: React.FC<Iprops> = ({ task }) => {
         if (!isOnline) return toast("Connect to network and try again", { type: "error", autoClose: 5000 })
 
         // prevent from making request when a previous delete request is still pending
-        if (loading) return toast("Deleting toast Please wait", { type: "warning", autoClose: 5000 })
+        if (loading) return toast("Deleting task Please wait", { type: "warning", autoClose: 5000 })
 
         // try {
-        toastIdRef.current = toast.loading("Deleting toast...")
+        toastIdRef.current = toast.loading("Deleting task...")
         const result = await deleteTaskService(task.id)
 
         switch (true) {
@@ -99,14 +99,14 @@ const Options: React.FC<Iprops> = ({ task }) => {
                 break;
 
             default:
-                toast.update(toastIdRef.current, { render: "Toast Deleted", autoClose: 5000, isLoading: false, type: "success" })
+                toast.update(toastIdRef.current, { render: "Task Deleted", autoClose: 5000, isLoading: false, type: "success" })
                 hideModal();
                 dispatch(removeTaskAction({ status: task.status, _id: task.id }))
 
         }
 
         if (result) {
-            toast.update(toastIdRef.current, { render: "Deleted Toast", autoClose: 5000, isLoading: false, type: "success" })
+            toast.update(toastIdRef.current, { render: "Task Deleted", autoClose: 5000, isLoading: false, type: "success" })
             hideModal();
             dispatch(removeTaskAction({ status: task.status, _id: task.id }))
         }

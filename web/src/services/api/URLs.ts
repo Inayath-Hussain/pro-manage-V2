@@ -8,7 +8,7 @@ export const apiUrls = {
     getTask: "/api/tasks/",
     updateTaskStatus: (id: string) => "/api/tasks/" + id + "/status/",
     updateDone: (task_id: string, checklist_id: string) => `/api/tasks/${task_id}/checklist/${checklist_id}/`,
-    deleteTask: (id: string) => "/api/tasks/" + id,
+    deleteTask: (id: string) => "/api/tasks/" + id + "/",
     addTask: "/api/tasks/new/",
     updateTask: (id: string) => "/api/tasks/" + id + "/",
     getPublicTask: (id: string) => "/api/tasks/" + id + "/public/",
