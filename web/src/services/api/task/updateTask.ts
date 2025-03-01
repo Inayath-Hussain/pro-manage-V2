@@ -57,9 +57,9 @@ export const updateTaskService = async (payload: IUpdateTaskBody) =>
         }
 
         try {
-            const result = await axiosInstance.put(apiUrls.updateTask, payload, { withCredentials: true })
+            const result = await axiosInstance.put(apiUrls.updateTask(payload.taskId), payload, { withCredentials: true })
 
-            const taskObj = new UpdateTaskResponse(result.data.message, result.data.task);
+            const taskObj = new UpdateTaskResponse("success", result.data.data);
 
             return resolve(taskObj.task)
         }
@@ -67,7 +67,11 @@ export const updateTaskService = async (payload: IUpdateTaskBody) =>
             if (ex instanceof AxiosError) {
                 switch (true) {
                     case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
-                        const updateTaskBodyError = new UpdateTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
+                        const updateTaskBodyError = new UpdateTaskMiddlewareError("Invalid data", {})
+                        const keys = Object.keys(ex.response.data)
+                        keys.forEach(k => {
+                            updateTaskBodyError.addFieldError(k as keyof IUpdateTaskBody, ex.response?.data[k][0])
+                        })
                         return resolve(updateTaskBodyError)
 
 

@@ -33,22 +33,22 @@ const ChecklistInput: React.FC<Iprops> = ({ checkList, handleChecklistItemChange
 
                 {checkList.map(c => (
 
-                    <div className={styles.checkList_input_container} key={c._id}>
+                    <div className={styles.checkList_input_container} key={c.id}>
 
 
                         {/* checkbox for done property */}
                         <input className={styles.checkList_done} type="checkbox"
-                            checked={c.done} onChange={() => handleChecklistItemChange(c._id, { key: "done", value: !c.done })} />
+                            checked={c.done} onChange={() => handleChecklistItemChange(c.id, { key: "done", value: !c.done })} />
 
 
                         {/* text for description property */}
                         <input type="text" placeholder="Add a task" className={styles.checkList_input} defaultValue={c.description}
-                            onChange={(e) => handleChecklistItemChange(c._id, { key: "description", value: e.target.value })} required />
+                            onChange={(e) => handleChecklistItemChange(c.id, { key: "description", value: e.target.value })} required />
 
 
                         {/* delete button */}
                         <button type="button" aria-label="delete check list item" title="Delete check list item"
-                            className={styles.delete_checkList_item_button} onClick={() => removeCheckList(c._id)}>
+                            className={styles.delete_checkList_item_button} onClick={() => removeCheckList(c.id)}>
                             <img src={DeleteLogo} alt="" width={20} />
                         </button>
                     </div>

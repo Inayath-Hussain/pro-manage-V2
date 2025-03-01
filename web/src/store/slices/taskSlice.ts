@@ -9,14 +9,14 @@ export const statusEnum = ["backlog", "in-progress", "to-do", "done"] as const
 export interface IChecklist {
     description: string
     done: boolean
-    _id: string
+    id: string
 }
 
 /**
  * tasks sent to or recived from server are in this format 
  */
 export interface ITaskJSON {
-    _id: string
+    id: string
     title: string
     priority: typeof priorityEnum[number]
     status: typeof statusEnum[number]
@@ -28,7 +28,7 @@ export interface ITaskJSON {
 
 interface IUpdateTaskStatusPayload {
     status: ITaskJSON["status"]
-    _id: string
+    id: string
 }
 
 // type Istate = {
@@ -107,7 +107,7 @@ const taskSlice = createSlice({
             const currentStatus = action.payload.currentStatus
             const task = action.payload.task
 
-            state[currentStatus] = state[currentStatus].filter(s => s._id !== task._id)
+            state[currentStatus] = state[currentStatus].filter(s => s.id !== task.id)
             state[task.status].push(task)
 
             return state
@@ -117,11 +117,11 @@ const taskSlice = createSlice({
             const currentStatus = action.payload.currentStatus
             const data = action.payload.data
 
-            const task = state[currentStatus].find(s => s._id === data._id)
+            const task = state[currentStatus].find(s => s.id === data.id)
             if (task === undefined) return state
 
             task.status = data.status
-            state[currentStatus] = state[currentStatus].filter(s => s._id !== data._id)
+            state[currentStatus] = state[currentStatus].filter(s => s.id !== data.id)
             state[data.status].push(task)
 
             return state
@@ -130,22 +130,22 @@ const taskSlice = createSlice({
         updateDoneAction: (state, action: PayloadAction<{ status: ITaskJSON["status"], data: IUpdateDoneBody }>) => {
             const { data, status } = action.payload
 
-            const taskIndex = state[status].findIndex(s => s._id === data.taskId)
-            const itemIndex = state[status][taskIndex].checklist.findIndex(c => c._id === data.checkListId)
+            const taskIndex = state[status].findIndex(s => s.id === data.taskId)
+            const itemIndex = state[status][taskIndex].checklist.findIndex(c => c.id === data.checkListId)
 
             state[status][taskIndex].checklist[itemIndex].done = data.done
         },
 
         removeTaskAction: (state, action: PayloadAction<{ status: ITaskJSON["status"], _id: string }>) => {
 
-            state[action.payload.status] = state[action.payload.status].filter(s => s._id !== action.payload._id)
+            state[action.payload.status] = state[action.payload.status].filter(s => s.id !== action.payload._id)
             return state
         },
 
         removeCheckListItemAction: (state, action: PayloadAction<{ status: ITaskJSON["status"], taskId: string, itemID: string }>) => {
-            const index = state[action.payload.status].findIndex(s => s._id === action.payload.taskId)
+            const index = state[action.payload.status].findIndex(s => s.id === action.payload.taskId)
 
-            state[action.payload.status][index].checklist = state[action.payload.status][index].checklist.filter(c => c._id !== action.payload.itemID)
+            state[action.payload.status][index].checklist = state[action.payload.status][index].checklist.filter(c => c.id !== action.payload.itemID)
         }
     }
 })

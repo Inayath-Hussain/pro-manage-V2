@@ -65,7 +65,7 @@ const StatusButtons: React.FC<Iprops> = ({ status, taskId }) => {
             default:
                 setLoading(false)
                 toast.update(toastIdRef.current, { render: "Task Updated", autoClose: 5000, type: "success", isLoading: false })
-                dispatch(updateTaskStatusAction({ currentStatus: status, data: { _id: taskId, status: localStatus } }))
+                dispatch(updateTaskStatusAction({ currentStatus: status, data: { id: taskId, status: localStatus } }))
 
         }
 

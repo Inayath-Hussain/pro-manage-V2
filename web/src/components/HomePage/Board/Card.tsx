@@ -54,13 +54,13 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
 
 
         // make service call
-        const item = task.checklist.find(item => item._id === checkListId)
+        const item = task.checklist.find(item => item.id === checkListId)
         if (item === undefined) return // dispatch to remove item
 
         // try {
         setLoading(true)
         toastIdRef.current = toast.loading("Updating Task...")
-        const result = await updateDoneService({ taskId: task._id, checkListId, done: !item.done })
+        const result = await updateDoneService({ taskId: task.id, checkListId, done: !item.done })
 
         switch (true) {
             case (result instanceof UnauthorizedError):
@@ -71,14 +71,14 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
             case (result instanceof InvalidTaskId):
                 setLoading(false)
                 errorToast(toastIdRef.current, result.message)
-                dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+                dispatch(removeTaskAction({ status: task.status, _id: task.id }))
                 return
 
             case (result instanceof InvalidCheckListItemId):
                 setLoading(false)
                 errorToast(toastIdRef.current, result.message)
                 // dispatch to remove item from checkList
-                dispatch(removeCheckListItemAction({ status: task.status, taskId: task._id, itemID: checkListId }))
+                dispatch(removeCheckListItemAction({ status: task.status, taskId: task.id, itemID: checkListId }))
                 return
 
             case (result instanceof NetworkError):
@@ -92,7 +92,7 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
                 toast.update(toastIdRef.current, { type: "success", render: "Updated Task Item", isLoading: false, autoClose: 5000 })
                 setLoading(false)
                 // dispatch action to update checkList item
-                dispatch(updateDoneAction({ status: task.status, data: { taskId: task._id, checkListId, done: !item.done } }))
+                dispatch(updateDoneAction({ status: task.status, data: { taskId: task.id, checkListId, done: !item.done } }))
         }
 
         // if (result) {
@@ -203,8 +203,8 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
                     {/* items */}
 
                     {open && task.checklist.map(c => (
-                        <div className={styles.item} key={c._id}>
-                            <input type="checkbox" checked={c.done} onChange={() => handleDoneChange(c._id)} />
+                        <div className={styles.item} key={c.id}>
+                            <input type="checkbox" checked={c.done} onChange={() => handleDoneChange(c.id)} />
 
                             <p>{c.description}</p>
                         </div>
@@ -228,7 +228,7 @@ const Card: React.FC<Iprops> = ({ task, collapseAll }) => {
 
 
                     {/* status */}
-                    <StatusButtons taskId={task._id} status={task.status} />
+                    <StatusButtons taskId={task.id} status={task.status} />
 
                 </div>
 

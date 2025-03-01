@@ -22,7 +22,7 @@ export const getTaskService = async (filter: IFilter) => {
             try {
                 const result = await axiosInstance.get(apiUrls.getTask + "?filter=" + filter, { withCredentials: true })
 
-                resolve(result.data)
+                resolve(result.data.data)
             }
             catch (ex) {
                 if (ex instanceof AxiosError) {

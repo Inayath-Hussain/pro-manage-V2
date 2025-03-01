@@ -11,8 +11,8 @@ import { toastIds } from "@/utilities/toast/toastIds";
 export interface IAddTaskBody {
     title: string
     priority: string
-    dueDate?: string
-    checkList: IChecklist[]
+    due_date?: string
+    checklist: IChecklist[]
 }
 
 type IAddTaskBodyError = {
@@ -58,7 +58,7 @@ export const addTaskService = async (payload: IAddTaskBody) =>
         else
             try {
                 const result = await axiosInstance.post(apiUrls.addTask, payload, { withCredentials: true })
-                const taskObj = new AddTaskResponse(result.data.message, result.data.task)
+                const taskObj = new AddTaskResponse("success", result.data.data)
                 resolve(taskObj.task)
             }
             catch (ex) {
@@ -71,7 +71,11 @@ export const addTaskService = async (payload: IAddTaskBody) =>
 
 
                         case (ex.response?.status === HttpStatusCode.UnprocessableEntity):
-                            const bodyErrorObj = new AddTaskMiddlewareError(ex.response.data.message, ex.response.data.errors)
+                            const bodyErrorObj = new AddTaskMiddlewareError("Invalid data", {})
+                            const keys = Object.keys(ex.response.data);
+                            keys.forEach(k => {
+                                bodyErrorObj.addFieldError(k as keyof IAddTaskBody, ex.response?.data[k][0])
+                            })
                             return resolve(bodyErrorObj)
                     }
                 }

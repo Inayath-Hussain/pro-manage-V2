@@ -89,7 +89,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
 
     // update checkList state
     const addNewCheckList = () => {
-        setCheckList([...checkList, { _id: Date.now().toString(), description: "", done: false }])
+        setCheckList([...checkList, { id: "new-" + Date.now().valueOf().toString(), description: "", done: false }])
     }
 
 
@@ -105,7 +105,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
     // update one of the checklist object properties
     const handleChecklistItemChange: HandleChecklistItemChange = (itemId, detail) => {
         const newCheckList = [...checkList]
-        const item = newCheckList.find(n => n._id === itemId)
+        const item = newCheckList.find(n => n.id === itemId)
 
         if (item === undefined) return console.log("item doesn't exist")
 
@@ -129,7 +129,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
 
 
     const removeChecklistItem = (itemId: string) => {
-        const newCheckList = checkList.filter(c => c._id !== itemId)
+        const newCheckList = checkList.filter(c => c.id !== itemId)
 
         setCheckList(newCheckList)
     }
@@ -152,12 +152,19 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
             })
 
             const checklistWithoutId = [...checkList]
+            checklistWithoutId.forEach(c => {
+                // c.id = Number(c.id)
+                if (typeof c.id == "string" && c.id.startsWith("new-")) {
+                    //@ts-ignore
+                    delete c.id;
+                }
+            })
             // @ts-ignore
             checklistWithoutId.forEach(c => { delete c._id })
 
             toastIdRef.current = toast.loading("Saving task")
             if (task === undefined) {
-                const taskDoc = await addTaskService({ title, priority, checkList: checklistWithoutId, dueDate: dueDate || undefined })
+                const taskDoc = await addTaskService({ title, priority, checklist: checklistWithoutId, due_date: dueDate || undefined })
                 // if (taskDoc) {
                 //     toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
                 //     // dispatch action to add task
@@ -180,8 +187,8 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                         return setFormErrors({
                             title: taskDoc.errors.title || "",
                             priority: taskDoc.errors.priority || "",
-                            dueDate: taskDoc.errors.dueDate || "",
-                            checkList: taskDoc.errors.checkList || ""
+                            dueDate: taskDoc.errors.due_date || "",
+                            checkList: taskDoc.errors.checklist || ""
                         })
 
                     case (taskDoc instanceof NetworkError):
@@ -189,7 +196,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                         return
 
                     default:
-                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000, isLoading: false })
                         // dispatch action to add task
                         dispatch(addTaskAction(taskDoc))
                         break;
@@ -198,16 +205,17 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
 
             else {
                 // updateTaskService
-                const taskDoc = await updateTaskService({ title, priority, checkList: checklistWithoutId, taskId: task._id, dueDate: dueDate || undefined })
+                const taskDoc = await updateTaskService({ title, priority, checklist: checklistWithoutId, taskId: task.id, due_date: dueDate || undefined })
 
                 switch (true) {
                     case (taskDoc instanceof UpdateTaskMiddlewareError):
+                        console.log("THIS IS IS")
                         errorToast(toastIdRef.current, taskDoc.message)
                         return setFormErrors({
                             title: taskDoc.errors.title || "",
                             priority: taskDoc.errors.priority || "",
-                            dueDate: taskDoc.errors.dueDate || "",
-                            checkList: taskDoc.errors.checkList || ""
+                            dueDate: taskDoc.errors.due_date || "",
+                            checkList: taskDoc.errors.checklist || ""
                         })
 
 
@@ -218,7 +226,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                         return
 
                     case (taskDoc instanceof InvalidTaskId):
-                        dispatch(removeTaskAction({ status: task?.status as ITaskJSON["status"], _id: task?._id as string }))
+                        dispatch(removeTaskAction({ status: task?.status as ITaskJSON["status"], _id: task?.id as string }))
                         closeModal()
                         errorToast(toastIdRef.current, taskDoc.message)
                         return
@@ -233,7 +241,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                         return
 
                     default:
-                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000 })
+                        toast.update(toastIdRef.current, { render: "Task saved", type: "success", autoClose: 5000, isLoading: false })
                         // dispatch action to update task
                         dispatch(updateTaskAction({ currentStatus: task.status, task: taskDoc }))
 

@@ -49,6 +49,7 @@ const HomePage = () => {
     useEffect(() => {
         const call = async () => {
             const result = await getTaskService("week");
+            console.log(result)
 
             switch (true) {
                 case (result instanceof UserOfflineError):

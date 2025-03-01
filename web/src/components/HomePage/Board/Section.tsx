@@ -50,7 +50,7 @@ const Section: React.FC<ISectionprops> = ({ title, tasks }) => {
             <div className={styles.cards_container}>
 
                 {tasks.map(t => (
-                    <Card task={t} key={t.title} collapseAll={collapseAll} />
+                    <Card task={t} key={t.id} collapseAll={collapseAll} />
                 ))}
 
             </div>
