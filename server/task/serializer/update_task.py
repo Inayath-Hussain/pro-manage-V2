@@ -66,6 +66,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
         ######################################### Checklist Item Updation ########################################
             updated_items = []
             requested_item_ids = []
+            new_checklist_items = []
 
             for item in checklist_data:
                 id = item.get("id", None)
@@ -74,6 +75,8 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
                     instance_items[id].done = item.get('done', instance_items[id].done)
                     updated_items.append(instance_items[id])
                     requested_item_ids.append(id)
+                else:
+                    new_checklist_items.append(Checklist(**item, task_id=instance.id))
 
 
             if updated_items:
@@ -84,7 +87,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
 
 
         ######################################### Checklist Item Creation ############################################
-            new_checklist_items = [Checklist(**item, task_id =instance.id) for item in checklist_data if not "id" in item]
+            # new_checklist_items.extend([Checklist(**item, task_id =instance.id) for item in checklist_data if not "id" in item])
             new_checklist_instances = []
             if new_checklist_items:
                 new_checklist_instances = Checklist.objects.bulk_create(new_checklist_items)
