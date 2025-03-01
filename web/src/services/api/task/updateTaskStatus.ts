@@ -21,7 +21,7 @@ export const updateTaskStatusService = async (payload: IUpdateTaskStatusBody) =>
         }
 
         try {
-            const result = await axiosInstance.patch(apiUrls.updateTaskStatus, payload, { withCredentials: true })
+            const result = await axiosInstance.patch(apiUrls.updateTaskStatus(payload.taskId), payload, { withCredentials: true })
 
             resolve(result.data)
         }
