@@ -3,7 +3,7 @@ import { AddTaskMiddlewareError } from "@/services/api/task/addTask";
 import { InvalidTaskId } from "@/services/api/task/getTaskPublic";
 import { ITaskJSON, priorityEnum, IChecklist } from "@/store/slices/taskSlice";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Id, toast } from "react-toastify";
@@ -32,6 +32,16 @@ interface Iprops {
 }
 
 const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
+
+    const newTaskItemRef = useRef<HTMLDivElement | null>(null);
+    const [newItemCreated, setNewItemCreated] = useState(0);
+
+    useEffect(() => {
+        if (newItemCreated > 0 && newTaskItemRef.current) {
+            console.log("Triggered")
+            newTaskItemRef.current.scrollIntoView({ behavior: "smooth" })
+        }
+    }, [newItemCreated]);
 
     const formSchema = z.object({
         title: z.string().trim().min(1, { message: "title is required" }),
@@ -90,6 +100,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
     // update checkList state
     const addNewCheckList = () => {
         setCheckList([...checkList, { id: "new-" + Date.now().valueOf().toString(), description: "", done: false }])
+        setNewItemCreated(prev => ++prev);
     }
 
 
@@ -341,6 +352,7 @@ const TaskFormModal: React.FC<Iprops> = ({ closeModal, task = undefined }) => {
                 errorMsg={formErrors.checkList}
                 addNewCheckList={addNewCheckList} removeCheckList={removeChecklistItem}
                 handleChecklistItemChange={handleChecklistItemChange}
+                ref={newTaskItemRef}
             />
 
 

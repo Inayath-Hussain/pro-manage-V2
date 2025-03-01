@@ -1,3 +1,5 @@
+import { forwardRef } from 'react';
+
 import { IChecklist } from "@/store/slices/taskSlice";
 
 import DeleteLogo from "@/assets/icons/delete-logo.svg";
@@ -16,7 +18,7 @@ interface Iprops {
 }
 
 
-const ChecklistInput: React.FC<Iprops> = ({ checkList, handleChecklistItemChange, addNewCheckList, removeCheckList, errorMsg }) => {
+const ChecklistInput = forwardRef<HTMLDivElement, Iprops>(({ checkList, handleChecklistItemChange, addNewCheckList, removeCheckList, errorMsg }, ref) => {
 
     const totalCheckListItems = checkList.length
     const totalDoneChecklistItems = checkList.reduce((prev, curr) => curr.done === true ? prev + 1 : prev, 0)
@@ -33,7 +35,7 @@ const ChecklistInput: React.FC<Iprops> = ({ checkList, handleChecklistItemChange
 
                 {checkList.map(c => (
 
-                    <div className={styles.checkList_input_container} key={c.id}>
+                    <div className={styles.checkList_input_container} key={c.id} ref={ref}>
 
 
                         {/* checkbox for done property */}
@@ -68,6 +70,6 @@ const ChecklistInput: React.FC<Iprops> = ({ checkList, handleChecklistItemChange
 
         </fieldset>
     );
-}
+})
 
 export default ChecklistInput;
