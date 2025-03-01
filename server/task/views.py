@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.shortcuts import render
 from django.db.models import Count
-from django.utils.timezone import now
+from django.utils.timezone import now, localdate
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -30,13 +30,22 @@ class GetAllUserTasks(APIView):
         user_id = request.user.id
 
         # create from date
-        today = now()
-        if filter == 'today':
-            from_date = today - timedelta(days=1)
+        # today = now()
+        # if filter == 'today':
+        #     from_date = today - timedelta(days=1)
+        # elif filter == 'month':
+        #     from_date = today - timedelta(days=30)
+        # else:
+        #     from_date = today - timedelta(days=7)
+
+        today = now().date()
+
+        if filter == 'day':
+            from_date = today
         elif filter == 'month':
-            from_date = today - timedelta(days=30)
+            from_date = today.replace(1)
         else:
-            from_date = today - timedelta(days=7)
+            from_date = today - timedelta(days=today.weekday())
 
         tasks_queryset = Task.objects.filter(user=user_id, created_at__range=[from_date, today]).prefetch_related("checklist_set")
         tasks = GetTaskSerializer(tasks_queryset, many=True)
