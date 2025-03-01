@@ -30,7 +30,7 @@ export const getAnalyticsService = () =>
         try {
             const result = await axiosInstance.get(apiUrls.analytics, { withCredentials: true })
 
-            resolve(result.data.analytics)
+            resolve({ ...result.data.status, ...result.data.priority, todo: result.data.status['to-do'] || 0, progress: result.data.status['in-progress'] || 0, dueDate: result.data.due_date })
         }
         catch (ex) {
             if (ex instanceof AxiosError) {
