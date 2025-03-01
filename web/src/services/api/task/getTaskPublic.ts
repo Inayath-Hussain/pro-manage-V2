@@ -50,7 +50,7 @@ export const getTaskPublicService = (taskId: string) =>
 
         try {
             const result = await axiosInstance.get(apiUrls.getPublicTask(taskId))
-            return resolve(result.data.task);
+            return resolve(result.data.data);
         }
         catch (ex) {
             if (ex instanceof AxiosError) {

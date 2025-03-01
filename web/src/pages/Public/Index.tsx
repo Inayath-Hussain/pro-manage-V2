@@ -135,7 +135,7 @@ const PublicTaskPage = () => {
 
                             {task?.checklist.map(c => (
 
-                                <div className={styles.item} key={c._id} >
+                                <div className={styles.item} key={c.id} >
                                     <input type="checkbox" checked={c.done} readOnly />
 
                                     <p>{c.description}</p>

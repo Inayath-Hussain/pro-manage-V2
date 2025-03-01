@@ -74,7 +74,7 @@ const Options: React.FC<Iprops> = ({ task }) => {
 
         // try {
         toastIdRef.current = toast.loading("Deleting toast...")
-        const result = await deleteTaskService(task._id)
+        const result = await deleteTaskService(task.id)
 
         switch (true) {
             case (result instanceof UserOfflineError):
@@ -95,20 +95,20 @@ const Options: React.FC<Iprops> = ({ task }) => {
             case (result instanceof InvalidTaskId):
                 errorToast(toastIdRef.current, result.message)
                 hideModal();
-                dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+                dispatch(removeTaskAction({ status: task.status, _id: task.id }))
                 break;
 
             default:
                 toast.update(toastIdRef.current, { render: "Toast Deleted", autoClose: 5000, isLoading: false, type: "success" })
                 hideModal();
-                dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+                dispatch(removeTaskAction({ status: task.status, _id: task.id }))
 
         }
 
         if (result) {
             toast.update(toastIdRef.current, { render: "Deleted Toast", autoClose: 5000, isLoading: false, type: "success" })
             hideModal();
-            dispatch(removeTaskAction({ status: task.status, _id: task._id }))
+            dispatch(removeTaskAction({ status: task.status, _id: task.id }))
         }
         // }
         // catch (ex) {
@@ -141,7 +141,7 @@ const Options: React.FC<Iprops> = ({ task }) => {
 
 
     const handleShare = async () => {
-        await navigator.clipboard.writeText(window.location.origin + routes.public + task._id)
+        await navigator.clipboard.writeText(window.location.origin + routes.public + task.id)
 
         toast("Copied to clipboard", { type: 'success', autoClose: 5000 })
         setOpen(false)
