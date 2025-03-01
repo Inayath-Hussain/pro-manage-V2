@@ -13,7 +13,7 @@ def clear_auth_cookies(exc, context):
     # After calling that a response returned or None
     # print("clear_auth_cookies custom exception handler")
 
-    print(exc)
+    print("printed from clear_auth_cookies", exc)
 
     response = exception_handler(exc, context)
 

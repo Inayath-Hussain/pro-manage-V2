@@ -21,4 +21,5 @@ class JsonErrorMiddleware:
             response = self.get_response(request)
             return response
         except Exception as e:
+            print("caught by JsonErrorMiddleware", e)
             return JsonResponse({"error": str(e)}, status=500)
