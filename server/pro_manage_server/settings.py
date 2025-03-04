@@ -15,9 +15,10 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv(os.path.join(os.path.dirname(__file__), "../env"))
+# load_dotenv(os.path.join(os.path.dirname(__file__), "\.env.prod"))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=BASE_DIR.joinpath('.env.prod'), override=True)
 
 
 ACCESS_TOKEN_SECRET = os.getenv('JWT_ACCESS_SECRET')
@@ -31,9 +32,9 @@ REFRESH_TOKEN_SECRET = os.getenv('JWT_REFRESH_SECRET')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://pro-manage-v2.vercel.app/']
 
 
 # Application definition
