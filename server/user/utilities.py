@@ -30,14 +30,14 @@ def verify_refresh_token(token):
 def set_access_token_cookie(response: Response, access_token: str):
     "Sign access token and set as cookie in response object"
 
-    response.set_cookie("accessToken", access_token, max_age=60*60)
+    response.set_cookie("accessToken", access_token, max_age=60*60, samesite="None")
 
 
 
 def set_refresh_token_cookie(response: Response, refresh_token: str):
     "Sign refresh token and set as cookie in response object"
     
-    response.set_cookie("refreshToken", refresh_token, max_age=30*24*60*60)
+    response.set_cookie("refreshToken", refresh_token, max_age=30*24*60*60, samesite="None")
 
 
 
