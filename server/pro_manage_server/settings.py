@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL="user.User"
 
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["https://pro-manage-v2.vercel.app"]
 
 CORS_ALLOW_CREDENTIALS = True
 
