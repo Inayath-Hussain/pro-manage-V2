@@ -10,6 +10,8 @@ const RouteProtection: React.FC<PropsWithChildren> = ({ children }) => {
 
     const { accessToken, refreshToken } = useContext(authTokenContext);
 
+    console.log(accessToken, refreshToken);
+
     if (!accessToken && !refreshToken) return (
         <Navigate to={routes.user.login} replace />
     )
