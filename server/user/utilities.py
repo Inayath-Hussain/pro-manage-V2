@@ -32,7 +32,7 @@ def set_access_token_cookie(response: Response, access_token: str):
 
     response.set_cookie("accessToken", access_token, 
                         # max_age=60*60,
-                          samesite="None", secure=True, expires=(datetime.now(datetime.timezone.utc) + timedelta(hours=1)))
+                          samesite="None", secure=True, expires=(datetime.now(timezone.utc) + timedelta(hours=1)))
 
 
 
@@ -41,7 +41,7 @@ def set_refresh_token_cookie(response: Response, refresh_token: str):
     
     response.set_cookie("refreshToken", refresh_token, 
                         # max_age=30*24*60*60,
-                          samesite="None", secure=True, expires=(datetime.now(datetime.timezone.utc) + timedelta(days=30)))
+                          samesite="None", secure=True, expires=(datetime.now(timezone.utc) + timedelta(days=30)))
 
 
 
