@@ -34,7 +34,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['pro-manage-v2.vercel.app', 'pro-manage-v2-server.vercel.app']
+ALLOWED_HOSTS = ['pro-manage-v2.vercel.app', 'pro-manage-v2-server.vercel.app', 'pro-manage-v2-debug-web.vercel.app']
 
 
 # Application definition
@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL="user.User"
 
 
-CORS_ALLOWED_ORIGINS = ["https://pro-manage-v2.vercel.app", "https://pro-manage-v2-server.vercel.app"]
+CORS_ALLOWED_ORIGINS = ["https://pro-manage-v2.vercel.app", "https://pro-manage-v2-server.vercel.app", "https://pro-manage-v2-debug-web.vercel.app"]
 
 CORS_ALLOW_CREDENTIALS = True
 
